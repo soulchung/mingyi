@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中國明易研習中心 - 手機專用精排系統</title>
+    <title>中國明易研習中心 - 手機直立精排系統</title>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "MingLiU", "PMingLiU", "標楷體", sans-serif;
             background-color: #1e3d3b;
             margin: 0;
-            padding: 8px;
+            padding: 6px;
             color: #1a1a1a;
         }
         .paper {
@@ -18,7 +18,7 @@
             width: 100%;
             max-width: 600px;
             margin: 0 auto;
-            padding: 12px;
+            padding: 10px;
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             border: 2px solid #3d2b1f;
@@ -26,50 +26,50 @@
         }
         h1 {
             text-align: center;
-            font-size: 22px;
-            letter-spacing: 6px;
-            margin: 5px 0;
+            font-size: 20px;
+            letter-spacing: 4px;
+            margin: 4px 0;
             color: #b71c1c;
         }
         .sub-header {
             text-align: center;
             font-size: 11px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: #4a4a4a;
             border-bottom: 1px solid #3d2b1f;
-            padding-bottom: 6px;
-            line-height: 1.4;
+            padding-bottom: 4px;
+            line-height: 1.3;
         }
-        /* 手機表單輸入卡片 */
+        /* 輸入面板 */
         .input-panel {
             background: #f4ebd0;
-            padding: 10px;
+            padding: 8px;
             border: 1px solid #b5a47a;
             border-radius: 6px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            font-size: 14px;
+            gap: 6px;
+            font-size: 13px;
         }
         .input-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 4px;
         }
         .input-panel input, .input-panel select {
-            font-size: 15px;
-            padding: 6px;
+            font-size: 14px;
+            padding: 4px;
             border: 1px solid #8c7853;
             border-radius: 4px;
             background-color: #fff;
         }
         .input-panel button {
             width: 100%;
-            padding: 10px;
-            font-size: 16px;
+            padding: 8px;
+            font-size: 15px;
             cursor: pointer;
             background-color: #b71c1c;
             color: white;
@@ -79,62 +79,54 @@
             letter-spacing: 2px;
         }
 
-        /* 手機直立區塊卡片 */
+        /* 區塊卡片統一樣式 */
         .card {
             background-color: #fffdf9;
             border: 1px solid #2c2c2c;
             border-radius: 4px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             padding: 8px;
         }
         .card-title {
             font-weight: bold;
-            font-size: 14px;
-            color: #800000;
-            border-bottom: 1px dashed #ccc;
-            padding-bottom: 4px;
-            margin-bottom: 6px;
-        }
-
-        /* 資訊區 */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
             font-size: 13px;
-            line-height: 1.5;
+            color: #800000;
+            border-bottom: 1px dashed #b5a47a;
+            padding-bottom: 3px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
         }
 
-        /* 表格共用設定 */
+        /* 表格共用 */
         table { width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; }
         table, th, td { border: 1px solid #2c2c2c; }
         th, td { padding: 4px 2px; }
 
-        /* 八字四柱手機適應 */
+        /* 八字四柱 */
         .bazi-table th { background-color: #f0e6d2; color: #800000; font-size: 13px; }
-        .ganzhi-text { font-size: 18px; font-weight: bold; line-height: 1.1; }
+        .ganzhi-text { font-size: 20px; font-weight: bold; line-height: 1.1; }
         .num-sub { font-size: 11px; color: #b71c1c; font-weight: bold; }
+        .hg-row { display: flex; justify-content: center; font-size: 12px; line-height: 1.2; letter-spacing: 1px; }
+        .hg-item { width: 15px; text-align: center; margin: 0 1px; font-weight: bold; }
         .zhangsheng { font-size: 13px; font-weight: bold; margin-top: 4px; border-top: 1px solid #2c2c2c; padding-top: 2px; border-bottom: 1px solid #2c2c2c; padding-bottom: 2px; background-color: #faf5eb; }
         .shensha-list { font-size: 12px; color: #b71c1c; font-weight: bold; line-height: 1.3; margin-top: 4px; }
 
-        /* 可折疊選單美化 (Accordion) */
-        details {
-            background-color: #fffdf9;
-            border: 1px solid #2c2c2c;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            padding: 8px;
+        /* 特星年日支直立清單（取代寬表格，手機完全不用左右滑動） */
+        .shensha-vertical-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+            font-size: 12px;
         }
-        summary {
-            font-weight: bold;
-            font-size: 14px;
+        .shensha-item {
+            background: #fff;
+            border: 1px solid #c8b996;
+            border-radius: 3px;
+            padding: 4px 6px;
+        }
+        .shensha-item b {
             color: #800000;
-            cursor: pointer;
-            outline: none;
-        }
-        .table-scroll {
-            overflow-x: auto;
-            margin-top: 8px;
         }
 
         .footer { font-size: 15px; font-weight: bold; margin-top: 10px; color: #3d2b1f; }
@@ -143,7 +135,7 @@
 <body>
 
 <div class="paper">
-    <!-- 手機化簡約輸入面板 -->
+    <!-- 輸入面板 -->
     <div class="input-panel">
         <div class="input-row">
             <span>姓名: <input type="text" id="nameInput" value="" size="8" placeholder="請輸入姓名"></span>
@@ -154,10 +146,10 @@
                 </select>
             </span>
         </div>
-        <div class="input-row" style="font-size: 13px;">
-            <span>民國 <input type="number" id="rocYear" value="" style="width: 45px;"> 年</span>
-            <span><input type="number" id="birthMonth" value="" style="width: 30px;" min="1" max="12"> 月</span>
-            <span><input type="number" id="birthDay" value="" style="width: 30px;" min="1" max="31"> 日</span>
+        <div class="input-row" style="font-size: 12px;">
+            <span>民國 <input type="number" id="rocYear" value="" style="width: 42px;"> 年</span>
+            <span><input type="number" id="birthMonth" value="" style="width: 28px;" min="1" max="12"> 月</span>
+            <span><input type="number" id="birthDay" value="" style="width: 28px;" min="1" max="31"> 日</span>
             <span>
                 <select id="birthHour">
                     <script>
@@ -173,47 +165,43 @@
 
     <h1>中國明易研習中心</h1>
     <div class="sub-header">
-        台中市東興路3段239號11樓5室<br>電話：(04)23218897 ｜ 傳真：(04)23218297
+        台中市東興路3段239號11樓5室 ｜ 電話：(04)23218897
     </div>
 
-    <!-- 卡片 1：基本命理與命宮資訊 -->
+    <!-- 順序 1：八字命盤放最上面 -->
     <div class="card">
-        <div class="card-title">命主基本資訊與神煞</div>
-        <div class="info-grid">
-            <div id="userInfoArea"></div>
-            <div id="minggongArea" style="border-left: 1px dashed #ccc; padding-left: 6px;"></div>
+        <div class="card-title">
+            <span>八字命盤與基本資料</span>
+            <span id="yinYangGua" style="color:#b71c1c;"></span>
         </div>
-        <div id="startYunArea" style="margin-top: 6px; font-size: 12px; font-weight: bold; color: #b71c1c;"></div>
-    </div>
-
-    <!-- 卡片 2：八字四柱與大運 -->
-    <div class="card">
-        <div class="card-title">八字四柱命盤</div>
         <table class="bazi-table" id="baziTable"></table>
+        <div style="margin-top: 6px; font-size: 12px; line-height: 1.5; border-top: 1px dashed #ccc; padding-top: 4px;" id="userInfoArea"></div>
     </div>
 
+    <!-- 順序 2：再來是大運盤 -->
     <div class="card">
-        <div class="card-title">大運流年表</div>
-        <div class="table-scroll">
+        <div class="card-title">
+            <span>大運流年表</span>
+            <span id="startYunArea" style="font-size:11px; color:#b71c1c;"></span>
+        </div>
+        <div style="overflow-x: auto;">
             <table class="dayun-table" id="dayunTable"></table>
         </div>
     </div>
 
-    <!-- 可折疊卡片 3：12地支特星方陣 -->
-    <details>
-        <summary>點擊展開：12地支特星與神煞方陣</summary>
-        <div class="table-scroll" style="margin-top: 8px;">
-            <table class="shensha-table" id="shenshaTable"></table>
-        </div>
-    </details>
-
-    <!-- 可折疊卡片 4：玄空紫白飛星表 -->
-    <details open>
-        <summary>點擊展開：三元玄空流年流月飛星表</summary>
-        <div class="table-scroll" style="margin-top: 8px;">
+    <!-- 順序 3：再來是數字盤 (玄空流年流月飛星) -->
+    <div class="card">
+        <div class="card-title">三元玄空流年流月飛星數字盤</div>
+        <div style="overflow-x: auto;">
             <table id="xuankongTable"></table>
         </div>
-    </details>
+    </div>
+
+    <!-- 順序 4：特星年日支最下面 (改為直立卡片，手機完全免左右滑動) -->
+    <div class="card">
+        <div class="card-title">特星年日支 (十二地支神煞速查)</div>
+        <div class="shensha-vertical-list" id="shenshaVerticalList"></div>
+    </div>
     
     <div class="footer">批示：</div>
 </div>
@@ -388,23 +376,16 @@
             if(guaNum === 5) guaNum = gender === 1 ? 2 : 8;
             const guaMap = {1:"一坎", 2:"二坤", 3:"三震", 4:"四巽", 6:"六乾", 7:"七兌", 8:"八艮", 9:"九離"};
 
+            document.getElementById('yinYangGua').innerText = `${yinYangStr} ｜ 命卦：${guaMap[guaNum]}`;
+
             document.getElementById('userInfoArea').innerHTML = `
-                姓名：<b>${name}</b> (${gender===1?'男':'女'})<br>
-                國曆：${rocYear}年${m}月${d}日 ${h}時<br>
-                農曆：${rocYear}年${lunar.getMonth()}月${lunar.getDay()}日<br>
-                <span style="color:#b71c1c; font-weight:bold;">${yinYangStr} ｜ 命卦：${guaMap[guaNum]}</span>
+                姓名：<b>${name}</b> (${gender===1?'男':'女'}) &nbsp;|&nbsp; 國曆：${rocYear}年${m}月${d}日 ${h}時<br>
+                農曆：${rocYear}年${lunar.getMonth()}月${lunar.getDay()}日 &nbsp;|&nbsp; 命宮：${bazi.getMingGong()}<br>
+                胎元：${bazi.getTaiYuan()} &nbsp;|&nbsp; 胎息：${bazi.getTaiXi()} &nbsp;|&nbsp; 空亡：年(${bazi.getYearXunKong()}) 日(${bazi.getDayXunKong()})<br>
+                <span style="color:#b71c1c;">小兒關煞：${getChildGuanSha(monthZhi, bazi.getTimeZhi(), yearGan, yearNaYin)}</span>
             `;
 
-            document.getElementById('startYunArea').innerHTML = `★ 運程：出生後 ${yun.getStartYear()} 年又 ${yun.getStartMonth()} 月上大運`;
-            document.getElementById('minggongArea').innerHTML = `
-                <b>命宮</b>: ${bazi.getMingGong()}<br>
-                <b>胎元</b>: ${bazi.getTaiYuan()}<br>
-                <b>胎息</b>: ${bazi.getTaiXi()}<br>
-                <b>空亡</b>: 年(${bazi.getYearXunKong()}) 日(${bazi.getDayXunKong()})
-            `;
-
-            // 手機版小兒關煞顯示於資訊下方
-            document.getElementById('userInfoArea').innerHTML += `<br><span style="font-size:11px; color:#555;">關煞：${getChildGuanSha(monthZhi, bazi.getTimeZhi(), yearGan, yearNaYin)}</span>`;
+            document.getElementById('startYunArea').innerText = `出生後 ${yun.getStartYear()}年又${yun.getStartMonth()}月上大運`;
 
             const pillars = [
                 { gan: bazi.getTimeGan(), zhi: bazi.getTimeZhi(), shishen: bazi.getTimeShiShenGan(), hideGan: dictHideGan[bazi.getTimeZhi()], dishi: getMyDiShi(dayGan, bazi.getTimeZhi()) },
@@ -453,7 +434,28 @@
             }
             document.getElementById('dayunTable').innerHTML = d1+"</tr>"+d2+"</tr>"+d3+"</tr>"+d4+"</tr>";
 
-            // 特星方陣
+            // 玄空飛星數字盤
+            const pGua = pillars.map(p => zhiPalace[p.zhi]);
+            const pYun = pillars.map(p => getXk(p.gan+p.zhi).y); 
+            let yBase = pillars.map(p => flyStar(1, p.zhi)); 
+            let curM = pillars.map(p => flyStar(8, p.zhi)); 
+            
+            const guaC = {1:"一", 2:"二", 3:"三", 4:"四", 6:"六", 7:"七", 8:"八", 9:"九"};
+            
+            let xkHtml = `<tr><td><b>項目</b></td><td><b>時</b></td><td><b>日</b></td><td><b>月</b></td><td><b>年</b></td></tr>`;
+            xkHtml += `<tr><td>卦</td><td>${guaC[pGua[0]]}</td><td>${guaC[pGua[1]]}</td><td>${guaC[pGua[2]]}</td><td>${guaC[pGua[3]]}</td></tr>`;
+            xkHtml += `<tr><td>運</td><td>${pYun[0]}</td><td>${pYun[1]}</td><td>${pYun[2]}</td><td>${pYun[3]}</td></tr>`;
+            xkHtml += `<tr><td>115年</td><td>${yBase[0]}</td><td>${yBase[1]}</td><td>${yBase[2]}</td><td>${yBase[3]}</td></tr>`;
+
+            for (let i = 0; i < 12; i++) {
+                let mLabel = (i+1) + "月";
+                xkHtml += `<tr><td>${mLabel}</td><td>${curM[0]}</td><td>${curM[1]}</td><td>${curM[2]}</td><td>${curM[3]}</td></tr>`;
+                curM = curM.map(val => mod9(val - 1));
+            }
+            document.getElementById('xuankongTable').innerHTML = xkHtml;
+
+            // 特星年日支直立卡片清單渲染
+            const branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
             const matrix = [
                 ["未", "午", "卯", "未", "巳", "亥", "巳", "戌", "寅", "戌", "子", "子"],
                 ["午", "未", "戌", "午", "丑", "申", "寅", "戌", "寅", "酉", "酉", "丑"],
@@ -468,31 +470,18 @@
                 ["巳", "辰", "未", "酉", "丑", "巳", "亥", "未", "亥", "子", "午", "戌"],
                 ["辰", "巳", "亥", "申", "酉", "寅", "申", "戌", "寅", "亥", "卯", "亥"]
             ];
-            const headers = ["元辰","正沖反吟","三刑","六害","太白凶星","亡神","劫煞","寡宿","孤辰","血刃","將星","特星年日支"];
-            let gridHtml = `<tr>`; headers.forEach(h => gridHtml += `<th>${h}</th>`); gridHtml += `</tr>`;
-            matrix.forEach(row => { gridHtml += `<tr>`; row.forEach(val => gridHtml += `<td>${val}</td>`); gridHtml += `</tr>`; });
-            document.getElementById('shenshaTable').innerHTML = gridHtml;
+            const headers = ["元辰","正沖反吟","三刑","六害","太白凶星","亡神","劫煞","寡宿","孤辰","血刃","將星"];
 
-            // 玄空飛星
-            const pGua = pillars.map(p => zhiPalace[p.zhi]);
-            const pYun = pillars.map(p => getXk(p.gan+p.zhi).y); 
-            let yBase = pillars.map(p => flyStar(1, p.zhi)); 
-            let curM = pillars.map(p => flyStar(8, p.zhi)); 
-            
-            const guaC = {1:"一", 2:"二", 3:"三", 4:"四", 6:"六", 7:"七", 8:"八", 9:"九"};
-            const pNames = ["時", "日", "月", "年"];
-            
-            let xkHtml = `<tr><td><b>項目</b></td><td><b>時</b></td><td><b>日</b></td><td><b>月</b></td><td><b>年</b></td></tr>`;
-            xkHtml += `<tr><td>卦</td><td>${guaC[pGua[0]]}</td><td>${guaC[pGua[1]]}</td><td>${guaC[pGua[2]]}</td><td>${guaC[pGua[3]]}</td></tr>`;
-            xkHtml += `<tr><td>運</td><td>${pYun[0]}</td><td>${pYun[1]}</td><td>${pYun[2]}</td><td>${pYun[3]}</td></tr>`;
-            xkHtml += `<tr><td>115年</td><td>${yBase[0]}</td><td>${yBase[1]}</td><td>${yBase[2]}</td><td>${yBase[3]}</td></tr>`;
-
-            for (let i = 0; i < 12; i++) {
-                let mLabel = (i+1) + "月";
-                xkHtml += `<tr><td>${mLabel}</td><td>${curM[0]}</td><td>${curM[1]}</td><td>${curM[2]}</td><td>${curM[3]}</td></tr>`;
-                curM = curM.map(val => mod9(val - 1));
-            }
-            document.getElementById('xuankongTable').innerHTML = xkHtml;
+            let listHtml = "";
+            branches.forEach((branch, bIdx) => {
+                let details = [];
+                headers.forEach((h, hIdx) => {
+                    details.append ? null : null; // placeholder
+                    details.push(`${h}: ${matrix[bIdx][hIdx]}`);
+                });
+                listHtml += `<div class="shensha-item"><b>【${branch}支】</b><br><span style="font-size:11px; color:#555;">${details.join(' | ')}</span></div>`;
+            });
+            document.getElementById('shenshaVerticalList').innerHTML = listHtml;
             
         } catch(e) {
             console.error(e);
