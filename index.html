@@ -3,182 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中國明易研習中心 - 專業精排系統</title>
+    <title>中國明易研習中心 - 手機專用精排系統</title>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
     <style>
         body {
-            font-family: "MingLiU", "PMingLiU", "標楷體", serif;
-            background-color: #1e3d3b; /* 沉穩的墨綠深色背景 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "MingLiU", "PMingLiU", "標楷體", sans-serif;
+            background-color: #1e3d3b;
             margin: 0;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
+            padding: 8px;
+            color: #1a1a1a;
         }
         .paper {
-            background-color: #fbf5e6; /* 高級復古宣紙米黃色 */
+            background-color: #fbf5e6;
             width: 100%;
-            max-width: 1100px;
-            padding: 25px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 12px;
             box-sizing: border-box;
-            color: #1a1a1a;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             border: 2px solid #3d2b1f;
-            border-radius: 4px;
+            border-radius: 6px;
         }
         h1 {
             text-align: center;
-            font-size: 32px;
-            letter-spacing: 12px;
-            margin: 5px 0 8px 0;
-            font-weight: bold;
-            color: #b71c1c; /* 傳統朱紅印記色 */
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            font-size: 22px;
+            letter-spacing: 6px;
+            margin: 5px 0;
+            color: #b71c1c;
         }
         .sub-header {
             text-align: center;
-            font-size: 13px;
-            margin-bottom: 20px;
-            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 12px;
             color: #4a4a4a;
-            border-bottom: 2px solid #3d2b1f;
-            padding-bottom: 10px;
+            border-bottom: 1px solid #3d2b1f;
+            padding-bottom: 6px;
+            line-height: 1.4;
         }
-        /* 輸入面板風格化 */
+        /* 手機表單輸入卡片 */
         .input-panel {
             background: #f4ebd0;
-            padding: 12px 15px;
+            padding: 10px;
             border: 1px solid #b5a47a;
             border-radius: 6px;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
+            gap: 8px;
             font-size: 14px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
         }
         .input-panel input, .input-panel select {
             font-size: 15px;
-            padding: 5px 8px;
+            padding: 6px;
             border: 1px solid #8c7853;
             border-radius: 4px;
             background-color: #fff;
-            font-family: inherit;
         }
         .input-panel button {
-            padding: 7px 22px;
-            font-size: 15px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
             cursor: pointer;
             background-color: #b71c1c;
             color: white;
             border: none;
             border-radius: 4px;
             font-weight: bold;
-            letter-spacing: 1px;
-            transition: background 0.2s;
+            letter-spacing: 2px;
         }
-        .input-panel button:hover { background-color: #d32f2f; }
 
-        /* 上半部排版容器 */
-        .top-section {
-            display: flex;
-            border: 2px solid #2c2c2c;
+        /* 手機直立區塊卡片 */
+        .card {
             background-color: #fffdf9;
-            flex-wrap: wrap;
+            border: 1px solid #2c2c2c;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            padding: 8px;
         }
-        .dayun-box { flex: 3.5; border-right: 1px solid #2c2c2c; padding: 4px; min-width: 220px; }
-        .start-yun-box { width: 30px; border-right: 1px solid #2c2c2c; writing-mode: vertical-lr; text-align: center; padding: 12px 2px; font-size: 13px; letter-spacing: 2px; background-color: #f7f1e3; }
-        .minggong-box { flex: 0.9; border-right: 1px solid #2c2c2c; padding: 6px 2px; font-size: 13px; line-height: 1.6; text-align: center; min-width: 75px; background-color: #f7f1e3; }
-        .bazi-box { flex: 4.2; border-right: 1px solid #2c2c2c; min-width: 250px; }
-        .info-box { flex: 1.5; padding: 12px 8px; font-size: 14px; line-height: 1.8; writing-mode: vertical-rl; min-width: 130px; background-color: #f7f1e3; }
-        
-        table { width: 100%; border-collapse: collapse; text-align: center; }
-        table, th, td { border: 1px solid #2c2c2c; }
-        th, td { padding: 4px; }
-        
-        .dayun-table { border: none; font-size: 13px; height: 100%; }
-        .dayun-table td { border: 1px solid #2c2c2c; border-top: none; border-bottom: none; padding: 2px; vertical-align: top; }
-        
-        .bazi-table { height: 100%; border: none; }
-        .bazi-table td, .bazi-table th { border: 1px solid #2c2c2c; border-top:none; border-bottom:none; }
-        .bazi-table td { vertical-align: top; padding-top: 6px; }
-        .pillar-header { font-size: 16px; font-weight: bold; padding-bottom: 4px; background-color: #f0e6d2; color: #800000; }
-        .ganzhi-text { font-size: 24px; font-weight: bold; line-height: 1.1; color: #000; }
-        .num-sub { font-size: 12px; margin-left: 2px; vertical-align: bottom; color: #b71c1c; font-weight: bold; }
-        
-        .hidden-gan { border-top: 1px solid #2c2c2c !important; margin-top: 6px; padding-top: 5px !important; }
-        .hg-row { display: flex; justify-content: center; font-size: 13px; line-height: 1.2; letter-spacing: 1px; }
-        .hg-item { width: 16px; text-align: center; margin: 0 1px; font-weight: bold; }
-        .zhangsheng { font-size: 15px; font-weight: bold; margin-top: 5px; border-top: 1px solid #2c2c2c; padding-top: 4px; border-bottom: 1px solid #2c2c2c; padding-bottom: 4px; background-color: #faf5eb; }
-        .shensha-list { font-size: 13px; margin-top: 5px; writing-mode: vertical-lr; letter-spacing: 2px; height: 110px; font-weight: bold; display: inline-block; text-align: left; color: #b71c1c; }
-        
-        /* 下半部排版容器 */
-        .bottom-section { display: flex; border: 2px solid #2c2c2c; border-top: none; background-color: #fffdf9; flex-wrap: wrap; }
-        .shensha-grid { flex: 6.5; border-right: 1px solid #2c2c2c; overflow-x: auto; }
-        .xuankong-grid { flex: 3.5; position: relative; overflow-x: auto; }
-        
-        .xuankong-grid table { border: none; height: 100%; }
-        .xuankong-grid td { border: none; font-size: 15px; padding: 4px; font-weight: bold; }
-        
-        .shensha-table th { background: #f0e6d2; font-size: 13px; font-weight: bold; writing-mode: vertical-lr; padding: 8px 4px; letter-spacing: 2px; color: #2c2c2c; }
-        .shensha-table td { font-size: 13px; padding: 3px; }
-        .footer { font-size: 18px; font-weight: bold; margin-top: 15px; color: #3d2b1f; }
+        .card-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #800000;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+        }
 
-        /* 手機寬度響應式優化 */
-        @media screen and (max-width: 768px) {
-            h1 { font-size: 22px; letter-spacing: 4px; }
-            .paper { padding: 10px; }
-            .top-section, .bottom-section { overflow-x: auto; }
+        /* 資訊區 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            font-size: 13px;
+            line-height: 1.5;
         }
+
+        /* 表格共用設定 */
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; }
+        table, th, td { border: 1px solid #2c2c2c; }
+        th, td { padding: 4px 2px; }
+
+        /* 八字四柱手機適應 */
+        .bazi-table th { background-color: #f0e6d2; color: #800000; font-size: 13px; }
+        .ganzhi-text { font-size: 18px; font-weight: bold; line-height: 1.1; }
+        .num-sub { font-size: 11px; color: #b71c1c; font-weight: bold; }
+        .zhangsheng { font-size: 13px; font-weight: bold; margin-top: 4px; border-top: 1px solid #2c2c2c; padding-top: 2px; border-bottom: 1px solid #2c2c2c; padding-bottom: 2px; background-color: #faf5eb; }
+        .shensha-list { font-size: 12px; color: #b71c1c; font-weight: bold; line-height: 1.3; margin-top: 4px; }
+
+        /* 可折疊選單美化 (Accordion) */
+        details {
+            background-color: #fffdf9;
+            border: 1px solid #2c2c2c;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            padding: 8px;
+        }
+        summary {
+            font-weight: bold;
+            font-size: 14px;
+            color: #800000;
+            cursor: pointer;
+            outline: none;
+        }
+        .table-scroll {
+            overflow-x: auto;
+            margin-top: 8px;
+        }
+
+        .footer { font-size: 15px; font-weight: bold; margin-top: 10px; color: #3d2b1f; }
     </style>
 </head>
 <body>
 
 <div class="paper">
-    <!-- 輸入面板：無預設名字，預設帶入當下系統時間 -->
+    <!-- 手機化簡約輸入面板 -->
     <div class="input-panel">
-        <div>姓名: <input type="text" id="nameInput" value="" size="8" placeholder="請輸入姓名"></div>
-        <div>性別: 
-            <select id="genderInput">
-                <option value="1">男</option>
-                <option value="0">女</option>
-            </select>
+        <div class="input-row">
+            <span>姓名: <input type="text" id="nameInput" value="" size="8" placeholder="請輸入姓名"></span>
+            <span>性別: 
+                <select id="genderInput">
+                    <option value="1">男</option>
+                    <option value="0">女</option>
+                </select>
+            </span>
         </div>
-        <div>生辰: 
-            民國 <input type="number" id="rocYear" value="" style="width: 55px;"> 年 
-            <input type="number" id="birthMonth" value="" style="width: 38px;" min="1" max="12"> 月 
-            <input type="number" id="birthDay" value="" style="width: 38px;" min="1" max="31"> 日 
-            <select id="birthHour">
-                <script>
-                    for(let i=0; i<24; i++) {
-                        document.write(`<option value="${i}">${i}時</option>`);
-                    }
-                </script>
-            </select>
+        <div class="input-row" style="font-size: 13px;">
+            <span>民國 <input type="number" id="rocYear" value="" style="width: 45px;"> 年</span>
+            <span><input type="number" id="birthMonth" value="" style="width: 30px;" min="1" max="12"> 月</span>
+            <span><input type="number" id="birthDay" value="" style="width: 30px;" min="1" max="31"> 日</span>
+            <span>
+                <select id="birthHour">
+                    <script>
+                        for(let i=0; i<24; i++) {
+                            document.write(`<option value="${i}">${i}時</option>`);
+                        }
+                    </script>
+                </select>
+            </span>
         </div>
-        <div><button onclick="processAll()">開始排盤</button></div>
+        <div><button onclick="processAll()">立即排盤</button></div>
     </div>
 
     <h1>中國明易研習中心</h1>
     <div class="sub-header">
-        地址：台中市東興路3段239號11樓5室 &nbsp;|&nbsp; 電話：(04)23218897 &nbsp;|&nbsp; 傳真：(04)23218297
+        台中市東興路3段239號11樓5室<br>電話：(04)23218897 ｜ 傳真：(04)23218297
     </div>
 
-    <!-- 上半部 -->
-    <div class="top-section">
-        <div class="dayun-box"><table class="dayun-table" id="dayunTable"></table></div>
-        <div class="start-yun-box" id="startYunArea"></div>
-        <div class="minggong-box" id="minggongArea"></div>
-        <div class="bazi-box"><table class="bazi-table" id="baziTable"></table></div>
-        <div class="info-box" id="userInfoArea"></div>
+    <!-- 卡片 1：基本命理與命宮資訊 -->
+    <div class="card">
+        <div class="card-title">命主基本資訊與神煞</div>
+        <div class="info-grid">
+            <div id="userInfoArea"></div>
+            <div id="minggongArea" style="border-left: 1px dashed #ccc; padding-left: 6px;"></div>
+        </div>
+        <div id="startYunArea" style="margin-top: 6px; font-size: 12px; font-weight: bold; color: #b71c1c;"></div>
     </div>
 
-    <!-- 下半部 -->
-    <div class="bottom-section">
-        <div class="shensha-grid"><table class="shensha-table" id="shenshaTable"></table></div>
-        <div class="xuankong-grid"><table id="xuankongTable"></table></div>
+    <!-- 卡片 2：八字四柱與大運 -->
+    <div class="card">
+        <div class="card-title">八字四柱命盤</div>
+        <table class="bazi-table" id="baziTable"></table>
     </div>
+
+    <div class="card">
+        <div class="card-title">大運流年表</div>
+        <div class="table-scroll">
+            <table class="dayun-table" id="dayunTable"></table>
+        </div>
+    </div>
+
+    <!-- 可折疊卡片 3：12地支特星方陣 -->
+    <details>
+        <summary>點擊展開：12地支特星與神煞方陣</summary>
+        <div class="table-scroll" style="margin-top: 8px;">
+            <table class="shensha-table" id="shenshaTable"></table>
+        </div>
+    </details>
+
+    <!-- 可折疊卡片 4：玄空紫白飛星表 -->
+    <details open>
+        <summary>點擊展開：三元玄空流年流月飛星表</summary>
+        <div class="table-scroll" style="margin-top: 8px;">
+            <table id="xuankongTable"></table>
+        </div>
+    </details>
     
     <div class="footer">批示：</div>
 </div>
@@ -259,7 +294,7 @@
         if(sanhe[dayZhi].tao === zhi || sanhe[yearZhi].tao === zhi) list.push("桃花");
         if(huiGu[yearZhi] === zhi) list.push("孤辰");
         
-        return list.length > 0 ? list.join("<br>") : "";
+        return list.length > 0 ? list.join(" ") : "無";
     }
 
     function getChildGuanSha(monthZhi, timeZhi, yearGan, yearNaYin) {
@@ -321,7 +356,7 @@
         if (season === '秋' && ['卯','酉'].includes(timeZhi)) list.push('落井關');
         if (season === '冬' && ['寅','申'].includes(timeZhi)) list.push('落井關');
 
-        return list.length > 0 ? list.join('<br>') : '無';
+        return list.length > 0 ? list.join('、') : '無';
     }
 
     function processAll() {
@@ -354,19 +389,22 @@
             const guaMap = {1:"一坎", 2:"二坤", 3:"三震", 4:"四巽", 6:"六乾", 7:"七兌", 8:"八艮", 9:"九離"};
 
             document.getElementById('userInfoArea').innerHTML = `
-                姓名：${name} ${gender===1?'先生':'女士'}<br>
-                國曆生日： ${rocYear} 年 ${m} 月 ${d} 日 ${h} 時<br>
-                <div style="margin-top:20px; font-weight:bold; letter-spacing:2px; color:#b71c1c;">${yinYangStr} &nbsp;&nbsp; ${guaMap[guaNum]}</div>
-                <div style="margin-top:20px;">印表日期： 115 年 7 月 20 日</div>
-                <div style="margin-top:10px;">農曆生日： ${rocYear} 年 ${lunar.getMonth()} 月 ${lunar.getDay()} 日</div>
+                姓名：<b>${name}</b> (${gender===1?'男':'女'})<br>
+                國曆：${rocYear}年${m}月${d}日 ${h}時<br>
+                農曆：${rocYear}年${lunar.getMonth()}月${lunar.getDay()}日<br>
+                <span style="color:#b71c1c; font-weight:bold;">${yinYangStr} ｜ 命卦：${guaMap[guaNum]}</span>
             `;
 
-            document.getElementById('startYunArea').innerHTML = `出生後 ${yun.getStartYear()} 年又 ${yun.getStartMonth()} 月上大運`;
+            document.getElementById('startYunArea').innerHTML = `★ 運程：出生後 ${yun.getStartYear()} 年又 ${yun.getStartMonth()} 月上大運`;
             document.getElementById('minggongArea').innerHTML = `
-                命宮<br>${bazi.getMingGong()}<br><br>胎元<br>${bazi.getTaiYuan()}<br><br>
-                胎息<br>${bazi.getTaiXi()}<br><br>年空亡<br>${bazi.getYearXunKong()}<br><br>日空亡<br>${bazi.getDayXunKong()}<br><br>
-                <span style="font-size:12px; line-height: 1.3;">小兒關煞：<br>${getChildGuanSha(monthZhi, bazi.getTimeZhi(), yearGan, yearNaYin)}</span>
+                <b>命宮</b>: ${bazi.getMingGong()}<br>
+                <b>胎元</b>: ${bazi.getTaiYuan()}<br>
+                <b>胎息</b>: ${bazi.getTaiXi()}<br>
+                <b>空亡</b>: 年(${bazi.getYearXunKong()}) 日(${bazi.getDayXunKong()})
             `;
+
+            // 手機版小兒關煞顯示於資訊下方
+            document.getElementById('userInfoArea').innerHTML += `<br><span style="font-size:11px; color:#555;">關煞：${getChildGuanSha(monthZhi, bazi.getTimeZhi(), yearGan, yearNaYin)}</span>`;
 
             const pillars = [
                 { gan: bazi.getTimeGan(), zhi: bazi.getTimeZhi(), shishen: bazi.getTimeShiShenGan(), hideGan: dictHideGan[bazi.getTimeZhi()], dishi: getMyDiShi(dayGan, bazi.getTimeZhi()) },
@@ -376,7 +414,7 @@
             ];
 
             let baziHtml = `<tr>`;
-            pillars.forEach(p => baziHtml += `<td class="pillar-header">${p.shishen}</td>`);
+            pillars.forEach(p => baziHtml += `<th>${p.shishen}</th>`);
             baziHtml += `</tr><tr>`;
             pillars.forEach(p => {
                 const xk = getXk(p.gan + p.zhi);
@@ -391,10 +429,10 @@
                     hSs1 += `<div class="hg-item">${ss[0]}</div>`;
                     hSs2 += `<div class="hg-item">${ss[1]}</div>`;
                 });
-                baziHtml += `<td class="hidden-gan">
+                baziHtml += `<td style="font-size:11px; padding:2px;">
                     <div class="hg-row">${hGans}</div><div class="hg-row">${hSs1}</div><div class="hg-row">${hSs2}</div>
-                    <div class="zhangsheng">${p.dishi}</div>
-                    <div style="text-align:center;"><div class="shensha-list">${getShenSha(p.gan, p.zhi, dayGan, dayZhi, yearZhi)}</div></div>
+                    <div class="zhangsheng" style="font-size:12px;">${p.dishi}</div>
+                    <div class="shensha-list">${getShenSha(p.gan, p.zhi, dayGan, dayZhi, yearZhi)}</div>
                 </td>`;
             });
             baziHtml += `</tr>`;
@@ -409,7 +447,7 @@
                     const mainHideGan = dictHideGan[dyZhi][dictHideGan[dyZhi].length - 1]; 
                     d1 += `<td>${daYunArr[i].getStartAge()}</td>`;
                     d2 += `<td>${getMyShiShen(dayGan, dyGan).substring(0,2)}</td>`;
-                    d3 += `<td><span style="font-size:16px; font-weight:bold;">${dyGan}<br>${dyZhi}</span></td>`;
+                    d3 += `<td><b>${dyGan}</b><br><b>${dyZhi}</b></td>`;
                     d4 += `<td>${getMyShiShen(dayGan, mainHideGan).substring(0,2)}</td>`;
                 }
             }
@@ -438,23 +476,20 @@
             // 玄空飛星
             const pGua = pillars.map(p => zhiPalace[p.zhi]);
             const pYun = pillars.map(p => getXk(p.gan+p.zhi).y); 
-            
             let yBase = pillars.map(p => flyStar(1, p.zhi)); 
             let curM = pillars.map(p => flyStar(8, p.zhi)); 
             
             const guaC = {1:"一", 2:"二", 3:"三", 4:"四", 6:"六", 7:"七", 8:"八", 9:"九"};
-            const pNames = ["---時---", "---日---", "---月---", "---年---"];
+            const pNames = ["時", "日", "月", "年"];
             
-            let xkHtml = `<tr><td style="text-align:left;">卦：<br>運：<br>陰曆</td>`;
-            for(let i=0; i<4; i++) xkHtml += `<td>${guaC[pGua[i]]}<br>${pYun[i]}<br>${pNames[i]}</td>`;
-            xkHtml += `</tr><tr><td style="text-align:left; font-weight:bold;">[115年]</td>`;
-            for(let i=0; i<4; i++) xkHtml += `<td>${yBase[i]}</td>`;
-            xkHtml += `</tr>`;
+            let xkHtml = `<tr><td><b>項目</b></td><td><b>時</b></td><td><b>日</b></td><td><b>月</b></td><td><b>年</b></td></tr>`;
+            xkHtml += `<tr><td>卦</td><td>${guaC[pGua[0]]}</td><td>${guaC[pGua[1]]}</td><td>${guaC[pGua[2]]}</td><td>${guaC[pGua[3]]}</td></tr>`;
+            xkHtml += `<tr><td>運</td><td>${pYun[0]}</td><td>${pYun[1]}</td><td>${pYun[2]}</td><td>${pYun[3]}</td></tr>`;
+            xkHtml += `<tr><td>115年</td><td>${yBase[0]}</td><td>${yBase[1]}</td><td>${yBase[2]}</td><td>${yBase[3]}</td></tr>`;
 
             for (let i = 0; i < 12; i++) {
-                xkHtml += `<tr><td style="text-align:left;">${(i+1).toString().padStart(2,'0')}月</td>`;
-                for(let j=0; j<4; j++) xkHtml += `<td>${curM[j]}</td>`;
-                xkHtml += `</tr>`;
+                let mLabel = (i+1) + "月";
+                xkHtml += `<tr><td>${mLabel}</td><td>${curM[0]}</td><td>${curM[1]}</td><td>${curM[2]}</td><td>${curM[3]}</td></tr>`;
                 curM = curM.map(val => mod9(val - 1));
             }
             document.getElementById('xuankongTable').innerHTML = xkHtml;
@@ -465,7 +500,6 @@
         }
     }
 
-    // 網頁載入時自動帶入當下時間並執行排盤
     window.onload = function() {
         const now = new Date();
         document.getElementById('rocYear').value = now.getFullYear() - 1911;
