@@ -222,7 +222,7 @@
         </div>
     </div>
 
-    <!-- 順序 3：數字盤 (玄空流月飛星盤，支援按鈕調整年份) -->
+    <!-- 順序 3：數字盤 (玄空流月飛星盤，徹底解決 NaN) -->
     <div class="card">
         <div class="card-title">
             <span>三元玄空流月飛星盤</span>
@@ -402,21 +402,26 @@
         const inputVal = document.getElementById('targetRocYear').value;
         let rocYear = parseInt(inputVal, 10);
         
-        // 防呆：如果輸入欄位為空或非有效數字，則暫時以 115 年計算，防止 NaN 產生
+        // 【強力防呆】如果使用者正在清除欄位或輸入非數字，預設為 115，避免產生 NaN 崩潰
         if (isNaN(rocYear)) {
             rocYear = 115;
         }
         
         const gregYear = rocYear + 1911;
 
-        const targetSolar = Solar.fromYmd(gregYear, 6, 1);
-        const targetLunar = targetSolar.getLunar();
-        const yCenter = targetLunar.getYearNineStar().getNumber();
-        const targetZhi = targetLunar.getYearZhi();
+        // 【終極解法】拔除對套件 getYearNineStar 的依賴，改用100%精準數學公式推算流年紫白
+        let remainder = gregYear % 9;
+        if (remainder === 0) remainder = 9;
+        let yCenter = 11 - remainder;
+        if (yCenter > 9) yCenter -= 9;
 
-        let mStartCenter = 8;
-        if (["寅", "申", "巳", "亥"].includes(targetZhi)) mStartCenter = 2;
-        else if (["辰", "戌", "丑", "未"].includes(targetZhi)) mStartCenter = 5;
+        // 流月起星依然依賴年支 (這部分萬年曆不會報錯)
+        const targetSolar = Solar.fromYmd(gregYear, 6, 1);
+        const targetZhi = targetSolar.getLunar().getYearZhi();
+
+        let mStartCenter = 8; // 子午卯酉年正月起8
+        if (["寅", "申", "巳", "亥"].includes(targetZhi)) mStartCenter = 2; // 寅申巳亥年正月起2
+        else if (["辰", "戌", "丑", "未"].includes(targetZhi)) mStartCenter = 5; // 辰戌丑未年正月起5
 
         const pGua = globalPillars.map(p => zhiPalace[p.zhi]);
         const pYun = globalPillars.map(p => getXk(p.gan+p.zhi).y);
@@ -430,11 +435,12 @@
         let xkHtml = `<tr><td><b>項目</b></td><td><b>時</b></td><td><b>日</b></td><td><b>月</b></td><td><b>年</b></td></tr>`;
         xkHtml += `<tr><td>卦</td><td>${guaC[pGua[0]]}</td><td>${guaC[pGua[1]]}</td><td>${guaC[pGua[2]]}</td><td>${guaC[pGua[3]]}</td></tr>`;
         xkHtml += `<tr><td>運</td><td>${pYun[0]}</td><td>${pYun[1]}</td><td>${pYun[2]}</td><td>${pYun[3]}</td></tr>`;
-        xkHtml += `<tr><td>${rocYear}年</td><td>${yBase[0]}</td><td>${yBase[1]}</td><td>${yBase[2]}</td><td>${yBase[3]}</td></tr>`;
+        xkHtml += `<tr><td style="color:#b71c1c; font-weight:bold;">${rocYear}年</td><td style="color:#b71c1c; font-weight:bold;">${yBase[0]}</td><td style="color:#b71c1c; font-weight:bold;">${yBase[1]}</td><td style="color:#b71c1c; font-weight:bold;">${yBase[2]}</td><td style="color:#b71c1c; font-weight:bold;">${yBase[3]}</td></tr>`;
 
         for (let i = 0; i < 12; i++) {
             let mLabel = (i+1) + "月";
             xkHtml += `<tr><td>${mLabel}</td><td>${curM[0]}</td><td>${curM[1]}</td><td>${curM[2]}</td><td>${curM[3]}</td></tr>`;
+            // 流月逐月逆推 (-1)
             curM = curM.map(val => mod9(val - 1));
         }
         document.getElementById('xuankongTable').innerHTML = xkHtml;
