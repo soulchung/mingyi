@@ -401,9 +401,12 @@
         if (!globalPillars) return;
         const inputVal = document.getElementById('targetRocYear').value;
         let rocYear = parseInt(inputVal, 10);
+        
+        // 防呆：如果輸入欄位為空或非有效數字，則暫時以 115 年計算，防止 NaN 產生
         if (isNaN(rocYear)) {
-            return; // 正在清空輸入時暫不計算，避免 NaN
+            rocYear = 115;
         }
+        
         const gregYear = rocYear + 1911;
 
         const targetSolar = Solar.fromYmd(gregYear, 6, 1);
