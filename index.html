@@ -168,7 +168,6 @@
 <body>
 
 <div class="paper">
-    <!-- 輸入面板 -->
     <div class="input-panel">
         <div class="input-row">
             <span>姓名: <input type="text" id="nameInput" value="" size="8" placeholder="請輸入姓名"></span>
@@ -201,7 +200,7 @@
         台中市東興路3段239號11樓5室 ｜ 電話：(04)23218897
     </div>
 
-    <!-- 順序 1：八字命盤 -->
+    <!-- 八字命盤 -->
     <div class="card">
         <div class="card-title">
             <span>八字命盤與基本資料</span>
@@ -211,7 +210,7 @@
         <div style="margin-top: 6px; font-size: 12px; line-height: 1.5; border-top: 1px dashed #ccc; padding-top: 4px;" id="userInfoArea"></div>
     </div>
 
-    <!-- 順序 2：大運盤 -->
+    <!-- 大運盤 -->
     <div class="card">
         <div class="card-title">
             <span>大運流年表</span>
@@ -222,7 +221,7 @@
         </div>
     </div>
 
-    <!-- 順序 3：數字盤 (玄空流月飛星盤) -->
+    <!-- 數字盤 (玄空流月飛星盤) -->
     <div class="card">
         <div class="card-title">
             <span>三元玄空流月飛星盤</span>
@@ -237,7 +236,7 @@
         </div>
     </div>
 
-    <!-- 順序 4：特星年日支最下面 -->
+    <!-- 特星年日支 -->
     <div class="card">
         <div class="card-title">特星年日支 (十二地支神煞速查)</div>
         <div class="shensha-vertical-list" id="shenshaVerticalList"></div>
@@ -278,28 +277,35 @@
     }
 
     // ==========================================
-    // 核心修正區：改用全自動「天干納甲數」與「地支洛書數」引擎
+    // 依據使用者上傳圖表，完全精確復刻的 60 甲子大卦字典庫
+    // (雙數字如 4/3、2/1 皆依指示取右邊的 3、1)
     // ==========================================
-    const ganXianTian = {'甲':9, '乙':1, '丙':6, '丁':4, '戊':7, '己':3, '庚':8, '辛':2, '壬':9, '癸':1};
-    const zhiLuoShu = {'子':1, '丑':8, '寅':8, '卯':3, '辰':4, '巳':4, '午':9, '未':2, '申':2, '酉':7, '戌':6, '亥':6};
-
-    // 保留部分固定常見的卦運 (y)，若不在內則自動依規律替換
-    const knownGuaYun = {
-        "癸卯": 9, "壬戌": 2, "庚戌": 2, "庚辰": 9, "甲午": 8, "辛未": 9, "戊子": 9, 
-        "癸亥": 9, "壬辰": 9, "丁未": 9, "丁巳": 7, "甲辰": 9, "庚申": 3, "己酉": 4, "戊寅": 9
+    const xk60Dict = {
+        // 第一欄：甲
+        "甲子":{g:1, y:1}, "甲戌":{g:7, y:2}, "甲申":{g:3, y:9}, "甲午":{g:9, y:1}, "甲辰":{g:3, y:2}, "甲寅":{g:7, y:9},
+        // 第二欄：乙
+        "乙丑":{g:3, y:6}, "乙亥":{g:3, y:3}, "乙酉":{g:9, y:4}, "乙未":{g:7, y:6}, "乙巳":{g:7, y:3}, "乙卯":{g:1, y:4},
+        // 第三欄：丙
+        "丙寅":{g:2, y:4}, "丙子":{g:6, y:3}, "丙戌":{g:6, y:1}, "丙申":{g:8, y:4}, "丙午":{g:4, y:3}, "丙辰":{g:4, y:1},
+        // 第四欄：丁
+        "丁卯":{g:6, y:9}, "丁丑":{g:4, y:7}, "丁亥":{g:8, y:8}, "丁酉":{g:4, y:9}, "丁未":{g:6, y:7}, "丁巳":{g:2, y:8},
+        // 第五欄：戊
+        "戊辰":{g:9, y:6}, "戊寅":{g:8, y:6}, "戊子":{g:7, y:4}, "戊戌":{g:1, y:6}, "戊申":{g:2, y:6}, "戊午":{g:3, y:4},
+        // 第六欄：己
+        "己巳":{g:8, y:2}, "己卯":{g:7, y:8}, "己丑":{g:9, y:2}, "己亥":{g:2, y:2}, "己酉":{g:3, y:8}, "己未":{g:1, y:2},
+        // 第七欄：庚
+        "庚午":{g:8, y:9}, "庚辰":{g:1, y:9}, "庚寅":{g:3, y:1}, "庚子":{g:2, y:9}, "庚戌":{g:9, y:9}, "庚申":{g:7, y:1},
+        // 第八欄：辛
+        "辛未":{g:9, y:3}, "辛巳":{g:3, y:7}, "辛卯":{g:2, y:3}, "辛丑":{g:1, y:3}, "辛亥":{g:7, y:7}, "辛酉":{g:8, y:3},
+        // 第九欄：壬
+        "壬申":{g:1, y:7}, "壬午":{g:2, y:1}, "壬辰":{g:6, y:4}, "壬寅":{g:9, y:7}, "壬子":{g:8, y:1}, "壬戌":{g:4, y:4},
+        // 第十欄：癸
+        "癸酉":{g:2, y:7}, "癸未":{g:4, y:8}, "癸巳":{g:4, y:6}, "癸卯":{g:8, y:7}, "癸丑":{g:6, y:8}, "癸亥":{g:6, y:6}
     };
 
-    function getXk(gz) {
-        let gan = gz.substring(0, 1);
-        let zhi = gz.substring(1, 2);
-        
-        let gVal = ganXianTian[gan] || 9; // 確保有值
-        let zVal = zhiLuoShu[zhi] || 9;   // 確保有值
-        
-        // 如果有紀錄精確卦運就抓取，沒有則以計算值代替，消滅所有預設的錯誤 9
-        let yVal = knownGuaYun[gz] !== undefined ? knownGuaYun[gz] : ((gVal + zVal) % 9 === 0 ? 9 : (gVal + zVal) % 9);
-
-        return { g: gVal, z: zVal, y: yVal };
+    function getXk(gz) { 
+        // 百分之百對應上方字典庫
+        return xk60Dict[gz] || {g:'?', y:'?'}; 
     }
     // ==========================================
 
@@ -421,12 +427,11 @@
         let rocYear = parseInt(inputVal, 10);
         
         if (isNaN(rocYear)) {
-            rocYear = 115; // 絕對防呆
+            rocYear = 115; 
         }
         
         const gregYear = rocYear + 1911;
 
-        // 計算流年紫白 (防護升級)
         let remainder = gregYear % 9;
         if (remainder === 0) remainder = 9;
         let yCenter = 11 - remainder;
@@ -513,9 +518,8 @@
             globalPillars.forEach(p => baziHtml += `<th>${p.shishen}</th>`);
             baziHtml += `</tr><tr>`;
             globalPillars.forEach(p => {
-                // 這裡會呼叫全新修改的全自動運算引擎
                 const xk = getXk(p.gan + p.zhi);
-                baziHtml += `<td><span class="ganzhi-text">${p.gan}</span><span class="num-sub">${xk.g}</span><br><span class="ganzhi-text">${p.zhi}</span><span class="num-sub">${xk.z}</span></td>`;
+                baziHtml += `<td><span class="ganzhi-text">${p.gan}</span><span class="num-sub">${xk.g}</span><br><span class="ganzhi-text">${p.zhi}</span><span class="num-sub">${xk.y}</span></td>`;
             });
             baziHtml += `</tr><tr>`;
             
