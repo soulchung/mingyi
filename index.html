@@ -96,6 +96,7 @@
             margin-bottom: 6px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
         /* 表格共用 */
@@ -144,6 +145,23 @@
             color: #800000;
         }
 
+        /* 數字盤年份控制按鈕群 */
+        .year-control {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+        .year-control button {
+            padding: 2px 6px;
+            background: #800000;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
         .footer { font-size: 15px; font-weight: bold; margin-top: 10px; color: #3d2b1f; }
     </style>
 </head>
@@ -183,7 +201,7 @@
         台中市東興路3段239號11樓5室 ｜ 電話：(04)23218897
     </div>
 
-    <!-- 順序 1：八字命盤放最上面 -->
+    <!-- 順序 1：八字命盤 -->
     <div class="card">
         <div class="card-title">
             <span>八字命盤與基本資料</span>
@@ -193,7 +211,7 @@
         <div style="margin-top: 6px; font-size: 12px; line-height: 1.5; border-top: 1px dashed #ccc; padding-top: 4px;" id="userInfoArea"></div>
     </div>
 
-    <!-- 順序 2：再來是大運盤 -->
+    <!-- 順序 2：大運盤 -->
     <div class="card">
         <div class="card-title">
             <span>大運流年表</span>
@@ -204,9 +222,16 @@
         </div>
     </div>
 
-    <!-- 順序 3：再來是數字盤 (玄空流年流月飛星) -->
+    <!-- 順序 3：數字盤 (玄空流年流月飛星，支援按鈕調整年份) -->
     <div class="card">
-        <div class="card-title">三元玄空流年流月飛星數字盤</div>
+        <div class="card-title">
+            <span>三元玄空流月飛星盤</span>
+            <div class="year-control">
+                <button onclick="adjustYear(-1)">◀</button>
+                <span>民國 <input type="number" id="targetRocYear" value="115" style="width: 42px; text-align: center;" onchange="updateXuanKongTable()"> 年</span>
+                <button onclick="adjustYear(1)">▶</button>
+            </div>
+        </div>
         <div style="overflow-x: auto;">
             <table id="xuankongTable"></table>
         </div>
@@ -362,6 +387,51 @@
         return list.length > 0 ? list.join('、') : '無';
     }
 
+    let globalPillars = null; // 全域儲存四柱供年份切換時重新渲染數字盤
+
+    function adjustYear(offset) {
+        const input = document.getElementById('targetRocYear');
+        input.value = parseInt(input.value || 115, 10) + offset;
+        updateXuanKongTable();
+    }
+
+    function updateXuanKongTable() {
+        if (!globalPillars) return;
+        const rocYear = parseInt(document.getElementById('targetRocYear').value || 115, 10);
+        const gregYear = rocYear + 1911;
+
+        const targetSolar = Solar.fromYmd(gregYear, 6, 1);
+        const targetLunar = targetSolar.getLunar();
+        const yCenter = targetLunar.getYearNineStar().getNumber();
+        const targetZhi = targetLunar.getYearZhi();
+
+        // 根據年支決定正月起星 (子午卯酉起8, 寅申巳亥起2, 辰戌丑未起5)
+        let mStartCenter = 8;
+        if (["寅", "申", "巳", "亥"].includes(targetZhi)) mStartCenter = 2;
+        else if (["辰", "戌", "丑", "未"].includes(targetZhi)) mStartCenter = 5;
+
+        const pGua = globalPillars.map(p => zhiPalace[p.zhi]);
+        const pYun = globalPillars.map(p => getXk(p.gan+p.zhi).y);
+        
+        let yBase = globalPillars.map(p => flyStar(yCenter, p.zhi)); 
+        let mBase = globalPillars.map(p => flyStar(mStartCenter, p.zhi));
+        let curM = [...mBase];
+        
+        const guaC = {1:"一", 2:"二", 3:"三", 4:"四", 6:"六", 7:"七", 8:"八", 9:"九"};
+        
+        let xkHtml = `<tr><td><b>項目</b></td><td><b>時</b></td><td><b>日</b></td><td><b>月</b></td><td><b>年</b></td></tr>`;
+        xkHtml += `<tr><td>卦</td><td>${guaC[pGua[0]]}</td><td>${guaC[pGua[1]]}</td><td>${guaC[pGua[2]]}</td><td>${guaC[pGua[3]]}</td></tr>`;
+        xkHtml += `<tr><td>運</td><td>${pYun[0]}</td><td>${pYun[1]}</td><td>${pYun[2]}</td><td>${pYun[3]}</td></tr>`;
+        xkHtml += `<tr><td>${rocYear}年</td><td>${yBase[0]}</td><td>${yBase[1]}</td><td>${yBase[2]}</td><td>${yBase[3]}</td></tr>`;
+
+        for (let i = 0; i < 12; i++) {
+            let mLabel = (i+1) + "月";
+            xkHtml += `<tr><td>${mLabel}</td><td>${curM[0]}</td><td>${curM[1]}</td><td>${curM[2]}</td><td>${curM[3]}</td></tr>`;
+            curM = curM.map(val => mod9(val - 1));
+        }
+        document.getElementById('xuankongTable').innerHTML = xkHtml;
+    }
+
     function processAll() {
         try {
             const name = document.getElementById('nameInput').value || "善信";
@@ -402,7 +472,7 @@
 
             document.getElementById('startYunArea').innerText = `出生後 ${yun.getStartYear()}年又${yun.getStartMonth()}月上大運`;
 
-            const pillars = [
+            globalPillars = [
                 { gan: bazi.getTimeGan(), zhi: bazi.getTimeZhi(), shishen: bazi.getTimeShiShenGan(), hideGan: dictHideGan[bazi.getTimeZhi()], dishi: getMyDiShi(dayGan, bazi.getTimeZhi()) },
                 { gan: bazi.getDayGan(), zhi: bazi.getDayZhi(), shishen: "日主", hideGan: dictHideGan[bazi.getDayZhi()], dishi: getMyDiShi(dayGan, bazi.getDayZhi()) },
                 { gan: bazi.getMonthGan(), zhi: bazi.getMonthZhi(), shishen: bazi.getMonthShiShenGan(), hideGan: dictHideGan[bazi.getMonthZhi()], dishi: getMyDiShi(dayGan, bazi.getMonthZhi()) },
@@ -410,16 +480,16 @@
             ];
 
             let baziHtml = `<tr>`;
-            pillars.forEach(p => baziHtml += `<th>${p.shishen}</th>`);
+            globalPillars.forEach(p => baziHtml += `<th>${p.shishen}</th>`);
             baziHtml += `</tr><tr>`;
-            pillars.forEach(p => {
+            globalPillars.forEach(p => {
                 const xk = getXk(p.gan + p.zhi);
                 baziHtml += `<td><span class="ganzhi-text">${p.gan}</span><span class="num-sub">${xk.g}</span><br><span class="ganzhi-text">${p.zhi}</span><span class="num-sub">${xk.z}</span></td>`;
             });
             baziHtml += `</tr><tr>`;
             
-            // 藏干修改：改為並列顯示 (每個藏干一個直立欄位)
-            pillars.forEach(p => {
+            // 藏干並列顯示
+            globalPillars.forEach(p => {
                 let hideGanColsHtml = `<div class="hidegan-container">`;
                 p.hideGan.forEach(g => {
                     let ss = getMyShiShen(dayGan, g);
@@ -457,25 +527,8 @@
             }
             document.getElementById('dayunTable').innerHTML = d1+"</tr>"+d2+"</tr>"+d3+"</tr>"+d4+"</tr>";
 
-            // 玄空飛星數字盤
-            const pGua = pillars.map(p => zhiPalace[p.zhi]);
-            const pYun = pillars.map(p => getXk(p.gan+p.zhi).y); 
-            let yBase = pillars.map(p => flyStar(1, p.zhi)); 
-            let curM = pillars.map(p => flyStar(8, p.zhi)); 
-            
-            const guaC = {1:"一", 2:"二", 3:"三", 4:"四", 6:"六", 7:"七", 8:"八", 9:"九"};
-            
-            let xkHtml = `<tr><td><b>項目</b></td><td><b>時</b></td><td><b>日</b></td><td><b>月</b></td><td><b>年</b></td></tr>`;
-            xkHtml += `<tr><td>卦</td><td>${guaC[pGua[0]}</td><td>${guaC[pGua[1]}</td><td>${guaC[pGua[2]}</td><td>${guaC[pGua[3]}</td></tr>`;
-            xkHtml += `<tr><td>運</td><td>${pYun[0]}</td><td>${pYun[1]}</td><td>${pYun[2]}</td><td>${pYun[3]}</td></tr>`;
-            xkHtml += `<tr><td>115年</td><td>${yBase[0]}</td><td>${yBase[1]}</td><td>${yBase[2]}</td><td>${yBase[3]}</td></tr>`;
-
-            for (let i = 0; i < 12; i++) {
-                let mLabel = (i+1) + "月";
-                xkHtml += `<tr><td>${mLabel}</td><td>${curM[0]}</td><td>${curM[1]}</td><td>${curM[2]}</td><td>${curM[3]}</td></tr>`;
-                curM = curM.map(val => mod9(val - 1));
-            }
-            document.getElementById('xuankongTable').innerHTML = xkHtml;
+            // 渲染玄空飛星數字盤
+            updateXuanKongTable();
 
             // 特星年日支直立卡片清單渲染
             const branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
