@@ -222,13 +222,13 @@
         </div>
     </div>
 
-    <!-- 順序 3：數字盤 (玄空流年流月飛星，支援按鈕調整年份) -->
+    <!-- 順序 3：數字盤 (玄空流月飛星盤，支援按鈕調整年份) -->
     <div class="card">
         <div class="card-title">
             <span>三元玄空流月飛星盤</span>
             <div class="year-control">
                 <button onclick="adjustYear(-1)">◀</button>
-                <span>民國 <input type="number" id="targetRocYear" value="115" style="width: 42px; text-align: center;" onchange="updateXuanKongTable()"> 年</span>
+                <span>民國 <input type="number" id="targetRocYear" value="115" style="width: 45px; text-align: center;" oninput="updateXuanKongTable()"> 年</span>
                 <button onclick="adjustYear(1)">▶</button>
             </div>
         </div>
@@ -387,17 +387,23 @@
         return list.length > 0 ? list.join('、') : '無';
     }
 
-    let globalPillars = null; // 全域儲存四柱供年份切換時重新渲染數字盤
+    let globalPillars = null; 
 
     function adjustYear(offset) {
         const input = document.getElementById('targetRocYear');
-        input.value = parseInt(input.value || 115, 10) + offset;
+        let val = parseInt(input.value, 10);
+        if (isNaN(val)) val = 115;
+        input.value = val + offset;
         updateXuanKongTable();
     }
 
     function updateXuanKongTable() {
         if (!globalPillars) return;
-        const rocYear = parseInt(document.getElementById('targetRocYear').value || 115, 10);
+        const inputVal = document.getElementById('targetRocYear').value;
+        let rocYear = parseInt(inputVal, 10);
+        if (isNaN(rocYear)) {
+            return; // 正在清空輸入時暫不計算，避免 NaN
+        }
         const gregYear = rocYear + 1911;
 
         const targetSolar = Solar.fromYmd(gregYear, 6, 1);
@@ -405,7 +411,6 @@
         const yCenter = targetLunar.getYearNineStar().getNumber();
         const targetZhi = targetLunar.getYearZhi();
 
-        // 根據年支決定正月起星 (子午卯酉起8, 寅申巳亥起2, 辰戌丑未起5)
         let mStartCenter = 8;
         if (["寅", "申", "巳", "亥"].includes(targetZhi)) mStartCenter = 2;
         else if (["辰", "戌", "丑", "未"].includes(targetZhi)) mStartCenter = 5;
@@ -488,7 +493,6 @@
             });
             baziHtml += `</tr><tr>`;
             
-            // 藏干並列顯示
             globalPillars.forEach(p => {
                 let hideGanColsHtml = `<div class="hidegan-container">`;
                 p.hideGan.forEach(g => {
@@ -570,6 +574,7 @@
         document.getElementById('birthMonth').value = now.getMonth() + 1;
         document.getElementById('birthDay').value = now.getDate();
         document.getElementById('birthHour').value = now.getHours();
+        document.getElementById('targetRocYear').value = now.getFullYear() - 1911;
         processAll();
     };
 </script>
