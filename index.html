@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中國明易研習中心 - 專業精排系統</title>
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
+    <style>
+        body {
+            font-family: "MingLiU", "PMingLiU", "標楷體", serif;
+            background-color: #1e3d3b; /* 沉穩的墨綠深色背景，襯托紙張質感 */
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+        .paper {
+            background-color: #fbf5e6; /* 高級復古宣紙米黃色 */
+            width: 100%;
+            max-width: 1100px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            box-sizing: border-box;
+            color: #1a1a1a;
+            border: 2px solid #3d2b1f;
+            border-radius: 4px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            letter-spacing: 12px;
+            margin: 5px 0 8px 0;
+            font-weight: bold;
+            color: #b71c1c; /* 傳統朱紅印記色 */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .sub-header {
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #4a4a4a;
+            border-bottom: 2px solid #3d2b1f;
+            padding-bottom: 10px;
+        }
+        /* 輸入面板風格化 */
+        .input-panel {
+            background: #f4ebd0;
+            padding: 12px 15px;
+            border: 1px solid #b5a47a;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .input-panel input, .input-panel select {
+            font-size: 15px;
+            padding: 5px 8px;
+            border: 1px solid #8c7853;
+            border-radius: 4px;
+            background-color: #fff;
+            font-family: inherit;
+        }
+        .input-panel button {
+            padding: 7px 22px;
+            font-size: 15px;
+            cursor: pointer;
+            background-color: #b71c1c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: background 0.2s;
+        }
+        .input-panel button:hover { background-color: #d32f2f; }
+
+        /* 上半部排版容器 */
+        .top-section {
+            display: flex;
+            border: 2px solid #2c2c2c;
+            background-color: #fffdf9;
+            flex-wrap: wrap;
+        }
+        .dayun-box { flex: 3.5; border-right: 1px solid #2c2c2c; padding: 4px; min-width: 220px; }
+        .start-yun-box { width: 30px; border-right: 1px solid #2c2c2c; writing-mode: vertical-lr; text-align: center; padding: 12px 2px; font-size: 13px; letter-spacing: 2px; background-color: #f7f1e3; }
+        .minggong-box { flex: 0.9; border-right: 1px solid #2c2c2c; padding: 6px 2px; font-size: 13px; line-height: 1.6; text-align: center; min-width: 75px; background-color: #f7f1e3; }
+        .bazi-box { flex: 4.2; border-right: 1px solid #2c2c2c; min-width: 250px; }
+        .info-box { flex: 1.5; padding: 12px 8px; font-size: 14px; line-height: 1.8; writing-mode: vertical-rl; min-width: 130px; background-color: #f7f1e3; }
+        
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        table, th, td { border: 1px solid #2c2c2c; }
+        th, td { padding: 4px; }
+        
+        .dayun-table { border: none; font-size: 13px; height: 100%; }
+        .dayun-table td { border: 1px solid #2c2c2c; border-top: none; border-bottom: none; padding: 2px; vertical-align: top; }
+        
+        .bazi-table { height: 100%; border: none; }
+        .bazi-table td, .bazi-table th { border: 1px solid #2c2c2c; border-top:none; border-bottom:none; }
+        .bazi-table td { vertical-align: top; padding-top: 6px; }
+        .pillar-header { font-size: 16px; font-weight: bold; padding-bottom: 4px; background-color: #f0e6d2; color: #800000; }
+        .ganzhi-text { font-size: 24px; font-weight: bold; line-height: 1.1; color: #000; }
+        .num-sub { font-size: 12px; margin-left: 2px; vertical-align: bottom; color: #b71c1c; font-weight: bold; }
+        
+        .hidden-gan { border-top: 1px solid #2c2c2c !important; margin-top: 6px; padding-top: 5px !important; }
+        .hg-row { display: flex; justify-content: center; font-size: 13px; line-height: 1.2; letter-spacing: 1px; }
+        .hg-item { width: 16px; text-align: center; margin: 0 1px; font-weight: bold; }
+        .zhangsheng { font-size: 15px; font-weight: bold; margin-top: 5px; border-top: 1px solid #2c2c2c; padding-top: 4px; border-bottom: 1px solid #2c2c2c; padding-bottom: 4px; background-color: #faf5eb; }
+        .shensha-list { font-size: 13px; margin-top: 5px; writing-mode: vertical-lr; letter-spacing: 2px; height: 110px; font-weight: bold; display: inline-block; text-align: left; color: #b71c1c; }
+        
+        /* 下半部排版容器 */
+        .bottom-section { display: flex; border: 2px solid #2c2c2c; border-top: none; background-color: #fffdf9; flex-wrap: wrap; }
+        .shensha-grid { flex: 6.5; border-right: 1px solid #2c2c2c; overflow-x: auto; }
+        .xuankong-grid { flex: 3.5; position: relative; overflow-x: auto; }
+        
+        .xuankong-grid table { border: none; height: 100%; }
+        .xuankong-grid td { border: none; font-size: 15px; padding: 4px; font-weight: bold; }
+        
+        .shensha-table th { background: #f0e6d2; font-size: 13px; font-weight: bold; writing-mode: vertical-lr; padding: 8px 4px; letter-spacing: 2px; color: #2c2c2c; }
+        .shensha-table td { font-size: 13px; padding: 3px; }
+        .footer { font-size: 18px; font-weight: bold; margin-top: 15px; color: #3d2b1f; }
+
+        /* 手機寬度響應式優化 */
+        @media screen and (max-width: 768px) {
+            h1 { font-size: 22px; letter-spacing: 4px; }
+            .paper { padding: 10px; }
+            .top-section, .bottom-section { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="paper">
+    <!-- 輸入面板 -->
+    <div class="input-panel">
+        <div>姓名: <input type="text" id="nameInput" value="吳凱銘" size="6"></div>
+        <div>性別: 
+            <select id="genderInput">
+                <option value="1">男</option>
+                <option value="0">女</option>
+            </select>
+        </div>
+        <div>生辰: 
+            民國 <input type="number" id="rocYear" value="52" style="width: 50px;"> 年 
+            <input type="number" id="birthMonth" value="11" style="width: 35px;" min="1" max="12"> 月 
+            <input type="number" id="birthDay" value="3" style="width: 35px;" min="1" max="31"> 日 
+            <select id="birthHour">
+                <script>
+                    for(let i=0; i<24; i++) {
+                        let selected = (i === 8) ? "selected" : "";
+                        document.write(`<option value="${i}" ${selected}>${i}時</option>`);
+                    }
+                </script>
+            </select>
+        </div>
+        <div><button onclick="processAll()">重新排盤</button></div>
+    </div>
+
+    <h1>中國明易研習中心</h1>
+    <div class="sub-header">
+        地址：台中市東興路3段239號11樓5室 &nbsp;|&nbsp; 電話：(04)23218897 &nbsp;|&nbsp; 傳真：(04)23218297
+    </div>
+
+    <!-- 上半部 -->
+    <div class="top-section">
+        <div class="dayun-box"><table class="dayun-table" id="dayunTable"></table></div>
+        <div class="start-yun-box" id="startYunArea"></div>
+        <div class="minggong-box" id="minggongArea"></div>
+        <div class="bazi-box"><table class="bazi-table" id="baziTable"></table></div>
+        <div class="info-box" id="userInfoArea"></div>
+    </div>
+
+    <!-- 下半部 -->
+    <div class="bottom-section">
+        <div class="shensha-grid"><table class="shensha-table" id="shenshaTable"></table></div>
+        <div class="xuankong-grid"><table id="xuankongTable"></table></div>
+    </div>
+    
+    <div class="footer">批示：</div>
+</div>
+
+<script>
+    const dictHideGan = {
+        '子':['癸'], '丑':['癸','辛','己'], '寅':['戊','丙','甲'], '卯':['乙'],
+        '辰':['乙','癸','戊'], '巳':['戊','庚','丙'], '午':['己','丁'], '未':['丁','乙','己'],
+        '申':['戊','壬','庚'], '酉':['辛'], '戌':['辛','丁','戊'], '亥':['甲','壬']
+    };
+
+    const diShiMap = {
+        '甲':['亥','子','丑','寅','卯','辰','巳','午','未','申','酉','戌'],
+        '丙':['寅','卯','辰','巳','午','未','申','酉','戌','亥','子','丑'],
+        '戊':['寅','卯','辰','巳','午','未','申','酉','戌','亥','子','丑'],
+        '庚':['巳','午','未','申','酉','戌','亥','子','丑','寅','卯','辰'],
+        '壬':['申','酉','戌','亥','子','丑','寅','卯','辰','巳','午','未'],
+        '乙':['午','巳','辰','卯','寅','丑','子','亥','戌','酉','申','未'],
+        '丁':['酉','申','未','午','巳','辰','卯','寅','丑','子','亥','戌'],
+        '己':['酉','申','未','午','巳','辰','卯','寅','丑','子','亥','戌'],
+        '辛':['子','亥','戌','酉','申','未','午','巳','辰','卯','寅','丑'],
+        '癸':['卯','寅','丑','子','亥','戌','酉','申','未','午','巳','辰']
+    };
+    const diShiNames = ['長生','沐浴','冠帶','臨官','帝旺','衰','病','死','墓','絕','胎','養'];
+    function getMyDiShi(gan, zhi) { return diShiNames[diShiMap[gan].indexOf(zhi)]; }
+
+    const gan5 = {甲:1, 乙:1, 丙:2, 丁:2, 戊:3, 己:3, 庚:4, 辛:4, 壬:5, 癸:5};
+    const ganYY = {甲:1, 乙:0, 丙:1, 丁:0, 戊:1, 己:0, 庚:1, 辛:0, 壬:1, 癸:0};
+    const ssName = {"0_0":"比肩", "0_1":"劫財", "1_0":"食神", "1_1":"傷官", "2_0":"偏財", "2_1":"正財", "3_0":"七煞", "3_1":"正官", "4_0":"偏印", "4_1":"正印"};
+    function getMyShiShen(dayGan, targetGan) {
+        let diff = (gan5[targetGan] - gan5[dayGan] + 5) % 5;
+        let diffYY = ganYY[dayGan] !== ganYY[targetGan] ? 1 : 0;
+        return ssName[`${diff}_${diffYY}`];
+    }
+
+    const xk60Dict = {
+        "甲午":{g:9,z:8,y:8}, "辛未":{g:9,z:3,y:9}, "戊子":{g:7,z:4,y:9}, "癸亥":{g:6,z:6,y:9},
+        "癸卯":{g:8,z:7,y:9}, "壬戌":{g:4,z:4,y:2}, "庚戌":{g:9,z:9,y:2}, "庚辰":{g:1,z:9,y:9},
+        "壬辰":{g:6,z:4,y:9}, "丁未":{g:6,z:7,y:9}, "丁巳":{g:2,z:8,y:7}, "甲辰":{g:3,z:2,y:9},
+        "庚申":{g:7,z:1,y:3}, "己酉":{g:3,z:8,y:4}, "戊寅":{g:8,z:6,y:9}
+    };
+    function getXk(gz) { return xk60Dict[gz] || {g:9, z:9, y:9}; }
+
+    const zhiPalace = { 子:1, 丑:8, 寅:8, 卯:3, 辰:4, 巳:4, 午:9, 未:2, 申:2, 酉:7, 戌:6, 亥:6 };
+    function mod9(num) { let m = num % 9; return m <= 0 ? m + 9 : m; }
+    function flyStar(centerStar, branch) { return mod9(centerStar + zhiPalace[branch] - 5); }
+
+    function getShenSha(gan, zhi, dayGan, dayZhi, yearZhi) {
+        let list = [];
+        const tianyi = {甲:['丑','未'], 戊:['丑','未'], 庚:['丑','未'], 乙:['子','申'], 己:['子','申'], 丙:['亥','酉'], 丁:['亥','酉'], 壬:['卯','巳'], 癸:['卯','巳'], 辛:['午','寅']};
+        const yangren = {甲:'卯',乙:'辰',丙:'午',戊:'午',丁:'未',己:'未',庚:'酉',辛:'戌',壬:'子',癸:'丑'};
+        const feiren = {甲:'酉',乙:'戌',丙:'子',戊:'子',丁:'丑',己:'丑',庚:'卯',辛:'辰',壬:'午',癸:'未'};
+        const jinyu = {甲:'辰',乙:'巳',丙:'未',戊:'未',丁:'申',己:'申',庚:'戌',辛:'亥',壬:'丑',癸:'寅'};
+        const hongyan = {甲:'午',乙:'申',丙:'寅',丁:'未',戊:'辰',己:'辰',庚:'戌',辛:'酉',壬:'子',癸:'申'};
+        const liuxia = {甲:'酉',乙:'戌',丙:'未',丁:'申',戊:'巳',己:'午',庚:'辰',辛:'卯',壬:'亥',癸:'寅'};
+        const wenchang = {甲:'巳',乙:'午',丙:'申',丁:'酉',戊:'申',己:'酉',庚:'亥',辛:'子',壬:'寅',癸:'卯'};
+        
+        const sanhe = {
+            '申':{hua:'辰', ma:'寅', sha:'巳', jiang:'子', tao:'酉'}, '子':{hua:'辰', ma:'寅', sha:'巳', jiang:'子', tao:'酉'}, '辰':{hua:'辰', ma:'寅', sha:'巳', jiang:'子', tao:'酉'},
+            '亥':{hua:'未', ma:'巳', sha:'申', jiang:'卯', tao:'子'}, '卯':{hua:'未', ma:'巳', sha:'申', jiang:'卯', tao:'子'}, '未':{hua:'未', ma:'巳', sha:'申', jiang:'卯', tao:'子'},
+            '寅':{hua:'戌', ma:'申', sha:'亥', jiang:'午', tao:'卯'}, '午':{hua:'戌', ma:'申', sha:'亥', jiang:'午', tao:'卯'}, '戌':{hua:'戌', ma:'申', sha:'亥', jiang:'午', tao:'卯'},
+            '巳':{hua:'丑', ma:'亥', sha:'寅', jiang:'酉', tao:'午'}, '酉':{hua:'丑', ma:'亥', sha:'寅', jiang:'酉', tao:'午'}, '丑':{hua:'丑', ma:'亥', sha:'寅', jiang:'酉', tao:'午'}
+        };
+        const huiGu = {亥:'寅',子:'寅',丑:'寅', 寅:'巳',卯:'巳',辰:'巳', 巳:'申',午:'申',未:'申', 申:'亥',酉:'亥',戌:'亥'};
+
+        if(tianyi[dayGan] && tianyi[dayGan].includes(zhi)) list.push("天乙");
+        if(wenchang[dayGan] === zhi) list.push("文昌");
+        if(yangren[dayGan] === zhi) list.push("羊刃");
+        if(feiren[dayGan] === zhi) list.push("飛刃");
+        if(hongyan[dayGan] === zhi) list.push("紅艷");
+        if(jinyu[dayGan] === zhi) list.push("金輿");
+        if(liuxia[dayGan] === zhi) list.push("流霞");
+        
+        if(sanhe[dayZhi].hua === zhi || sanhe[yearZhi].hua === zhi) list.push("華蓋");
+        if(sanhe[dayZhi].ma === zhi || sanhe[yearZhi].ma === zhi) list.push("驛馬");
+        if(sanhe[dayZhi].sha === zhi || sanhe[yearZhi].sha === zhi) list.push("劫煞");
+        if(sanhe[dayZhi].jiang === zhi || sanhe[yearZhi].jiang === zhi) list.push("將星");
+        if(sanhe[dayZhi].tao === zhi || sanhe[yearZhi].tao === zhi) list.push("桃花");
+        if(huiGu[yearZhi] === zhi) list.push("孤辰");
+        
+        return list.length > 0 ? list.join("<br>") : "";
+    }
+
+    function getChildGuanSha(monthZhi, timeZhi, yearGan, yearNaYin) {
+        let list = [];
+        const seasonMap = {'寅':'春','卯':'春','辰':'春','巳':'夏','午':'夏','未':'夏','申':'秋','酉':'秋','戌':'秋','亥':'冬','子':'冬','丑':'冬'};
+        const season = seasonMap[monthZhi];
+        
+        if (season === '春' && ['丑','未'].includes(timeZhi)) list.push('急腳關');
+        if (season === '夏' && ['辰','戌'].includes(timeZhi)) list.push('急腳關');
+        if (season === '秋' && ['寅','申'].includes(timeZhi)) list.push('急腳關');
+        if (season === '冬' && ['卯','酉'].includes(timeZhi)) list.push('急腳關');
+        
+        if (season === '春' && ['丑','巳'].includes(timeZhi)) list.push('四季關');
+        if (season === '夏' && ['辰','申'].includes(timeZhi)) list.push('四季關');
+        if (season === '秋' && ['未','亥'].includes(timeZhi)) list.push('四季關');
+        if (season === '冬' && ['戌','寅'].includes(timeZhi)) list.push('四季關');
+
+        if (season === '春' && ['丑','未'].includes(timeZhi)) list.push('閻王關');
+        if (season === '夏' && ['辰','戌'].includes(timeZhi)) list.push('閻王關');
+        if (season === '秋' && ['子','午'].includes(timeZhi)) list.push('閻王關');
+        if (season === '冬' && ['寅','申'].includes(timeZhi)) list.push('閻王關');
+
+        if (season === '春' && ['未','戌'].includes(timeZhi)) list.push('水火關');
+        if (season === '夏' && ['丑','辰'].includes(timeZhi)) list.push('水火關');
+        if (season === '秋' && ['酉'].includes(timeZhi)) list.push('水火關');
+        if (season === '冬' && ['丑'].includes(timeZhi)) list.push('水火關');
+
+        if (['寅','申','巳','亥'].includes(monthZhi) && ['辰','戌','丑','未'].includes(timeZhi)) list.push('百日關');
+        if (['子','午','卯','酉'].includes(monthZhi) && ['寅','申','巳','亥'].includes(timeZhi)) list.push('百日關');
+        if (['辰','戌','丑','未'].includes(monthZhi) && ['子','午','卯','酉'].includes(timeZhi)) list.push('百日關');
+
+        if (season === '春' && ['酉','戌','辰'].includes(timeZhi)) list.push('將軍箭');
+        if (season === '夏' && ['未','卯','子'].includes(timeZhi)) list.push('將軍箭');
+        if (season === '秋' && ['寅','午','丑'].includes(timeZhi)) list.push('將軍箭');
+        if (season === '冬' && ['亥','申','巳'].includes(timeZhi)) list.push('將軍箭');
+
+        if (yearNaYin.includes('金') && timeZhi === '戌') list.push('鐵蛇關');
+        if (yearNaYin.includes('木') && timeZhi === '辰') list.push('鐵蛇關');
+        if (yearNaYin.includes('水') && timeZhi === '寅') list.push('鐵蛇關');
+        if (yearNaYin.includes('火') && timeZhi === '未') list.push('鐵蛇關');
+        if (yearNaYin.includes('土') && timeZhi === '卯') list.push('鐵蛇關');
+
+        if (['甲','乙','丙','丁'].includes(yearGan) && ['申','子','辰'].includes(timeZhi)) list.push('取命關');
+        if (['戊','己','庚','辛'].includes(yearGan) && ['亥','卯','未'].includes(timeZhi)) list.push('取命關');
+        if (['壬','癸'].includes(yearGan) && ['寅','午','戌'].includes(timeZhi)) list.push('取命關');
+
+        if (season === '春' && timeZhi === '巳') list.push('短命關');
+        if (season === '夏' && timeZhi === '酉') list.push('短命關');
+        if (season === '秋' && timeZhi === '辰') list.push('短命關');
+        if (season === '冬' && timeZhi === '亥') list.push('短命關');
+
+        if (season === '春' && timeZhi === '辰') list.push('和尚關');
+        if (season === '夏' && timeZhi === '戌') list.push('和尚關');
+        if (season === '秋' && timeZhi === '辰') list.push('和尚關');
+        if (season === '冬' && timeZhi === '戌') list.push('和尚關');
+
+        if (season === '春' && ['巳','亥'].includes(timeZhi)) list.push('落井關');
+        if (season === '夏' && ['辰','戌'].includes(timeZhi)) list.push('落井關');
+        if (season === '秋' && ['卯','酉'].includes(timeZhi)) list.push('落井關');
+        if (season === '冬' && ['寅','申'].includes(timeZhi)) list.push('落井關');
+
+        return list.length > 0 ? list.join('<br>') : '無';
+    }
+
+    function processAll() {
+        try {
+            const name = document.getElementById('nameInput').value;
+            const gender = parseInt(document.getElementById('genderInput').value);
+            const rocYear = parseInt(document.getElementById('rocYear').value, 10);
+            const m = parseInt(document.getElementById('birthMonth').value, 10);
+            const d = parseInt(document.getElementById('birthDay').value, 10);
+            const h = parseInt(document.getElementById('birthHour').value, 10);
+
+            const gregYear = rocYear + 1911; 
+            
+            const solar = Solar.fromYmdHms(gregYear, m, d, h, 0, 0);
+            const lunar = solar.getLunar();
+            const bazi = lunar.getEightChar();
+            const yun = bazi.getYun(gender);
+            const daYunArr = yun.getDaYun();
+
+            const dayGan = bazi.getDayGan(), dayZhi = bazi.getDayZhi(), yearZhi = bazi.getYearZhi(), monthZhi = bazi.getMonthZhi();
+            const yearGan = bazi.getYearGan(), yearNaYin = bazi.getYearNaYin();
+            const yinYangStr = ("甲丙戊庚壬".includes(yearGan) ? "陽" : "陰") + (gender === 1 ? "男" : "女");
+            
+            let sum = 0, temp = gregYear;
+            while(temp > 0) { sum += temp % 10; temp = Math.floor(temp/10); }
+            while(sum > 9) { let t=0; while(sum>0){ t+=sum%10; sum=Math.floor(sum/10); } sum=t; }
+            let guaNum = gender === 1 ? 11 - sum : sum + 4;
+            if(guaNum > 9) guaNum -= 9;
+            if(guaNum === 5) guaNum = gender === 1 ? 2 : 8;
+            const guaMap = {1:"一坎", 2:"二坤", 3:"三震", 4:"四巽", 6:"六乾", 7:"七兌", 8:"八艮", 9:"九離"};
+
+            document.getElementById('userInfoArea').innerHTML = `
+                姓名：${name} ${gender===1?'先生':'女士'}<br>
+                國曆生日： ${rocYear} 年 ${m} 月 ${d} 日 ${h} 時<br>
+                <div style="margin-top:20px; font-weight:bold; letter-spacing:2px; color:#b71c1c;">${yinYangStr} &nbsp;&nbsp; ${guaMap[guaNum]}</div>
+                <div style="margin-top:20px;">印表日期： 115 年 7 月 20 日</div>
+                <div style="margin-top:10px;">農曆生日： ${rocYear} 年 ${lunar.getMonth()} 月 ${lunar.getDay()} 日</div>
+            `;
+
+            document.getElementById('startYunArea').innerHTML = `出生後 ${yun.getStartYear()} 年又 ${yun.getStartMonth()} 月上大運`;
+            document.getElementById('minggongArea').innerHTML = `
+                命宮<br>${bazi.getMingGong()}<br><br>胎元<br>${bazi.getTaiYuan()}<br><br>
+                胎息<br>${bazi.getTaiXi()}<br><br>年空亡<br>${bazi.getYearXunKong()}<br><br>日空亡<br>${bazi.getDayXunKong()}<br><br>
+                <span style="font-size:12px; line-height: 1.3;">小兒關煞：<br>${getChildGuanSha(monthZhi, bazi.getTimeZhi(), yearGan, yearNaYin)}</span>
+            `;
+
+            const pillars = [
+                { gan: bazi.getTimeGan(), zhi: bazi.getTimeZhi(), shishen: bazi.getTimeShiShenGan(), hideGan: dictHideGan[bazi.getTimeZhi()], dishi: getMyDiShi(dayGan, bazi.getTimeZhi()) },
+                { gan: bazi.getDayGan(), zhi: bazi.getDayZhi(), shishen: "日主", hideGan: dictHideGan[bazi.getDayZhi()], dishi: getMyDiShi(dayGan, bazi.getDayZhi()) },
+                { gan: bazi.getMonthGan(), zhi: bazi.getMonthZhi(), shishen: bazi.getMonthShiShenGan(), hideGan: dictHideGan[bazi.getMonthZhi()], dishi: getMyDiShi(dayGan, bazi.getMonthZhi()) },
+                { gan: bazi.getYearGan(), zhi: bazi.getYearZhi(), shishen: bazi.getYearShiShenGan(), hideGan: dictHideGan[bazi.getYearZhi()], dishi: getMyDiShi(dayGan, bazi.getYearZhi()) }
+            ];
+
+            let baziHtml = `<tr>`;
+            pillars.forEach(p => baziHtml += `<td class="pillar-header">${p.shishen}</td>`);
+            baziHtml += `</tr><tr>`;
+            pillars.forEach(p => {
+                const xk = getXk(p.gan + p.zhi);
+                baziHtml += `<td><span class="ganzhi-text">${p.gan}</span><span class="num-sub">${xk.g}</span><br><span class="ganzhi-text">${p.zhi}</span><span class="num-sub">${xk.z}</span></td>`;
+            });
+            baziHtml += `</tr><tr>`;
+            pillars.forEach(p => {
+                let hGans = "", hSs1 = "", hSs2 = "";
+                p.hideGan.forEach(g => {
+                    let ss = getMyShiShen(dayGan, g);
+                    hGans += `<div class="hg-item">${g}</div>`;
+                    hSs1 += `<div class="hg-item">${ss[0]}</div>`;
+                    hSs2 += `<div class="hg-item">${ss[1]}</div>`;
+                });
+                baziHtml += `<td class="hidden-gan">
+                    <div class="hg-row">${hGans}</div><div class="hg-row">${hSs1}</div><div class="hg-row">${hSs2}</div>
+                    <div class="zhangsheng">${p.dishi}</div>
+                    <div style="text-align:center;"><div class="shensha-list">${getShenSha(p.gan, p.zhi, dayGan, dayZhi, yearZhi)}</div></div>
+                </td>`;
+            });
+            baziHtml += `</tr>`;
+            document.getElementById('baziTable').innerHTML = baziHtml;
+
+            // 大運排盤
+            let d1 = "<tr>", d2 = "<tr>", d3 = "<tr>", d4 = "<tr>";
+            for(let i = 8; i >= 1; i--) {
+                if(daYunArr[i]) {
+                    const dyGanZhi = daYunArr[i].getGanZhi();
+                    const dyGan = dyGanZhi.substring(0, 1), dyZhi = dyGanZhi.substring(1);
+                    const mainHideGan = dictHideGan[dyZhi][dictHideGan[dyZhi].length - 1]; 
+                    d1 += `<td>${daYunArr[i].getStartAge()}</td>`;
+                    d2 += `<td>${getMyShiShen(dayGan, dyGan).substring(0,2)}</td>`;
+                    d3 += `<td><span style="font-size:16px; font-weight:bold;">${dyGan}<br>${dyZhi}</span></td>`;
+                    d4 += `<td>${getMyShiShen(dayGan, mainHideGan).substring(0,2)}</td>`;
+                }
+            }
+            document.getElementById('dayunTable').innerHTML = d1+"</tr>"+d2+"</tr>"+d3+"</tr>"+d4+"</tr>";
+
+            // 特星方陣
+            const matrix = [
+                ["未", "午", "卯", "未", "巳", "亥", "巳", "戌", "寅", "戌", "子", "子"],
+                ["午", "未", "戌", "午", "丑", "申", "寅", "戌", "寅", "酉", "酉", "丑"],
+                ["酉", "申", "巳", "巳", "酉", "巳", "亥", "丑", "巳", "申", "午", "寅"],
+                ["申", "酉", "子", "辰", "巳", "寅", "申", "丑", "巳", "未", "卯", "卯"],
+                ["亥", "戌", "辰", "卯", "丑", "亥", "巳", "丑", "巳", "午", "子", "辰"],
+                ["戌", "亥", "申", "寅", "酉", "申", "寅", "辰", "申", "巳", "酉", "巳"],
+                ["丑", "子", "午", "丑", "巳", "巳", "亥", "辰", "申", "辰", "午", "午"],
+                ["子", "丑", "戌", "子", "丑", "寅", "申", "辰", "申", "卯", "卯", "未"],
+                ["卯", "寅", "寅", "亥", "酉", "亥", "巳", "未", "亥", "寅", "子", "申"],
+                ["寅", "卯", "酉", "戌", "巳", "申", "寅", "未", "亥", "丑", "酉", "酉"],
+                ["巳", "辰", "未", "酉", "丑", "巳", "亥", "未", "亥", "子", "午", "戌"],
+                ["辰", "巳", "亥", "申", "酉", "寅", "申", "戌", "寅", "亥", "卯", "亥"]
+            ];
+            const headers = ["元辰","正沖反吟","三刑","六害","太白凶星","亡神","劫煞","寡宿","孤辰","血刃","將星","特星年日支"];
+            let gridHtml = `<tr>`; headers.forEach(h => gridHtml += `<th>${h}</th>`); gridHtml += `</tr>`;
+            matrix.forEach(row => { gridHtml += `<tr>`; row.forEach(val => gridHtml += `<td>${val}</td>`); gridHtml += `</tr>`; });
+            document.getElementById('shenshaTable').innerHTML = gridHtml;
+
+            // 玄空飛星
+            const pGua = pillars.map(p => zhiPalace[p.zhi]);
+            const pYun = pillars.map(p => getXk(p.gan+p.zhi).y); 
+            
+            let yBase = pillars.map(p => flyStar(1, p.zhi)); 
+            let curM = pillars.map(p => flyStar(8, p.zhi)); 
+            
+            const guaC = {1:"一", 2:"二", 3:"三", 4:"四", 6:"六", 7:"七", 8:"八", 9:"九"};
+            const pNames = ["---時---", "---日---", "---月---", "---年---"];
+            
+            let xkHtml = `<tr><td style="text-align:left;">卦：<br>運：<br>陰曆</td>`;
+            for(let i=0; i<4; i++) xkHtml += `<td>${guaC[pGua[i]]}<br>${pYun[i]}<br>${pNames[i]}</td>`;
+            xkHtml += `</tr><tr><td style="text-align:left; font-weight:bold;">[115年]</td>`;
+            for(let i=0; i<4; i++) xkHtml += `<td>${yBase[i]}</td>`;
+            xkHtml += `</tr>`;
+
+            for (let i = 0; i < 12; i++) {
+                xkHtml += `<tr><td style="text-align:left;">${(i+1).toString().padStart(2,'0')}月</td>`;
+                for(let j=0; j<4; j++) xkHtml += `<td>${curM[j]}</td>`;
+                xkHtml += `</tr>`;
+                curM = curM.map(val => mod9(val - 1));
+            }
+            document.getElementById('xuankongTable').innerHTML = xkHtml;
+            
+        } catch(e) {
+            console.error(e);
+            alert("系統錯誤：" + e.message);
+        }
+    }
+    window.onload = processAll;
+</script>
+</body>
+</html>
