@@ -277,13 +277,31 @@
         return ssName[`${diff}_${diffYY}`];
     }
 
-    const xk60Dict = {
-        "甲午":{g:9,z:8,y:8}, "辛未":{g:9,z:3,y:9}, "戊子":{g:7,z:4,y:9}, "癸亥":{g:6,z:6,y:9},
-        "癸卯":{g:8,z:7,y:9}, "壬戌":{g:4,z:4,y:2}, "庚戌":{g:9,z:9,y:2}, "庚辰":{g:1,z:9,y:9},
-        "壬辰":{g:6,z:4,y:9}, "丁未":{g:6,z:7,y:9}, "丁巳":{g:2,z:8,y:7}, "甲辰":{g:3,z:2,y:9},
-        "庚申":{g:7,z:1,y:3}, "己酉":{g:3,z:8,y:4}, "戊寅":{g:8,z:6,y:9}
+    // ==========================================
+    // 核心修正區：改用全自動「天干納甲數」與「地支洛書數」引擎
+    // ==========================================
+    const ganXianTian = {'甲':9, '乙':1, '丙':6, '丁':4, '戊':7, '己':3, '庚':8, '辛':2, '壬':9, '癸':1};
+    const zhiLuoShu = {'子':1, '丑':8, '寅':8, '卯':3, '辰':4, '巳':4, '午':9, '未':2, '申':2, '酉':7, '戌':6, '亥':6};
+
+    // 保留部分固定常見的卦運 (y)，若不在內則自動依規律替換
+    const knownGuaYun = {
+        "癸卯": 9, "壬戌": 2, "庚戌": 2, "庚辰": 9, "甲午": 8, "辛未": 9, "戊子": 9, 
+        "癸亥": 9, "壬辰": 9, "丁未": 9, "丁巳": 7, "甲辰": 9, "庚申": 3, "己酉": 4, "戊寅": 9
     };
-    function getXk(gz) { return xk60Dict[gz] || {g:9, z:9, y:9}; }
+
+    function getXk(gz) {
+        let gan = gz.substring(0, 1);
+        let zhi = gz.substring(1, 2);
+        
+        let gVal = ganXianTian[gan] || 9; // 確保有值
+        let zVal = zhiLuoShu[zhi] || 9;   // 確保有值
+        
+        // 如果有紀錄精確卦運就抓取，沒有則以計算值代替，消滅所有預設的錯誤 9
+        let yVal = knownGuaYun[gz] !== undefined ? knownGuaYun[gz] : ((gVal + zVal) % 9 === 0 ? 9 : (gVal + zVal) % 9);
+
+        return { g: gVal, z: zVal, y: yVal };
+    }
+    // ==========================================
 
     const zhiPalace = { 子:1, 丑:8, 寅:8, 卯:3, 辰:4, 巳:4, 午:9, 未:2, 申:2, 酉:7, 戌:6, 亥:6 };
     function mod9(num) { let m = num % 9; return m <= 0 ? m + 9 : m; }
@@ -330,137 +348,60 @@
         const seasonMap = {'寅':'春','卯':'春','辰':'春','巳':'夏','午':'夏','未':'夏','申':'秋','酉':'秋','戌':'秋','亥':'冬','子':'冬','丑':'冬'};
         const season = seasonMap[monthZhi];
         
-        // 1. 閻王關
-        if (season === '春' && ['丑','未'].includes(timeZhi)) list.push('閻王關');
-        if (season === '夏' && ['辰','戌'].includes(timeZhi)) list.push('閻王關');
-        if (season === '秋' && ['子','午'].includes(timeZhi)) list.push('閻王關');
-        if (season === '冬' && ['寅','申'].includes(timeZhi)) list.push('閻王關');
-
-        // 2. 四季關
+        if (season === '春' && ['丑','未'].includes(timeZhi)) list.push('急腳關');
+        if (season === '夏' && ['辰','戌'].includes(timeZhi)) list.push('急腳關');
+        if (season === '秋' && ['寅','申'].includes(timeZhi)) list.push('急腳關');
+        if (season === '冬' && ['卯','酉'].includes(timeZhi)) list.push('急腳關');
+        
         if (season === '春' && ['丑','巳'].includes(timeZhi)) list.push('四季關');
         if (season === '夏' && ['辰','申'].includes(timeZhi)) list.push('四季關');
         if (season === '秋' && ['未','亥'].includes(timeZhi)) list.push('四季關');
         if (season === '冬' && ['戌','寅'].includes(timeZhi)) list.push('四季關');
 
-        // 3. 落井關
-        if (season === '春' && ['巳','亥'].includes(timeZhi)) list.push('落井關');
-        if (season === '夏' && ['辰','戌'].includes(timeZhi)) list.push('落井關');
-        if (season === '秋' && ['卯','酉'].includes(timeZhi)) list.push('落井關');
-        if (season === '冬' && ['寅','申'].includes(timeZhi)) list.push('落井關');
+        if (season === '春' && ['丑','未'].includes(timeZhi)) list.push('閻王關');
+        if (season === '夏' && ['辰','戌'].includes(timeZhi)) list.push('閻王關');
+        if (season === '秋' && ['子','午'].includes(timeZhi)) list.push('閻王關');
+        if (season === '冬' && ['寅','申'].includes(timeZhi)) list.push('閻王關');
 
-        // 4. 深淵關
-        if (season === '春' && ['寅','申'].includes(timeZhi)) list.push('深淵關');
-        if (season === '夏' && ['丑','未'].includes(timeZhi)) list.push('深淵關');
-        if (season === '秋' && ['子','午'].includes(timeZhi)) list.push('深淵關');
-        if (season === '冬' && ['卯','酉'].includes(timeZhi)) list.push('深淵關');
-
-        // 5. 百日關
-        if (['寅','申','巳','亥'].includes(monthZhi) && ['辰','戌','丑','未'].includes(timeZhi)) list.push('百日關');
-        if (['子','午','卯','酉'].includes(monthZhi) && ['寅','申','巳','亥'].includes(timeZhi)) list.push('百日關');
-        if (['辰','戌','丑','未'].includes(monthZhi) && ['子','午','卯','酉'].includes(timeZhi)) list.push('百日關');
-
-        // 6. 白虎關
-        const naYinElement = yearNaYin.replace(/[^金木水火土]/g, '');
-        if (naYinElement === '金' && ['卯','戌'].includes(timeZhi)) list.push('白虎關');
-        if (naYinElement === '木' && ['酉','辰'].includes(timeZhi)) list.push('白虎關');
-        if (naYinElement === '水' && ['丑','未'].includes(timeZhi)) list.push('白虎關');
-        if (naYinElement === '火' && ['子','午'].includes(timeZhi)) list.push('白虎關');
-        if (naYinElement === '土' && ['寅','申'].includes(timeZhi)) list.push('白虎關');
-
-        // 7. 湯火關
-        if (['子','午','卯','酉'].includes(yearZhi) && ['午'].includes(timeZhi)) list.push('湯火關');
-        if (['寅','申','巳','亥'].includes(yearZhi) && ['寅'].includes(timeZhi)) list.push('湯火關');
-        if (['辰','戌','丑','未'].includes(yearZhi) && ['戌'].includes(timeZhi)) list.push('湯火關');
-
-        // 8. 天狗關
-        if (['子','午','卯','酉'].includes(yearZhi) && ['寅'].includes(timeZhi)) list.push('天狗關');
-        if (['寅','申','巳','亥'].includes(yearZhi) && ['申'].includes(timeZhi)) list.push('天狗關');
-        if (['辰','戌','丑','未'].includes(yearZhi) && ['辰'].includes(timeZhi)) list.push('天狗關');
-
-        // 9. 浴盆關
-        if (season === '春' && ['申'].includes(timeZhi)) list.push('浴盆關');
-        if (season === '夏' && ['未'].includes(timeZhi)) list.push('浴盆關');
-        if (season === '秋' && ['寅'].includes(timeZhi)) list.push('浴盆關');
-        if (season === '冬' && ['丑'].includes(timeZhi)) list.push('浴盆關');
-
-        // 10. 雷公打腦關
-        if (['甲','壬','戊'].includes(yearGan) && ['寅'].includes(timeZhi)) list.push('雷公關');
-        if (['庚','丙'].includes(yearGan) && ['申'].includes(timeZhi)) list.push('雷公關');
-
-        // 11. 鐵蛇關
-        if (naYinElement === '金' && timeZhi === '戌') list.push('鐵蛇關');
-        if (naYinElement === '木' && timeZhi === '辰') list.push('鐵蛇關');
-        if (naYinElement === '水' && timeZhi === '寅') list.push('鐵蛇關');
-        if (naYinElement === '火' && timeZhi === '未') list.push('鐵蛇關');
-        if (naYinElement === '土' && timeZhi === '卯') list.push('鐵蛇關');
-
-        // 12. 急腳關
-        if (season === '春' && ['丑','未'].includes(timeZhi)) list.push('急腳關');
-        if (season === '夏' && ['辰','戌'].includes(timeZhi)) list.push('急腳關');
-        if (season === '秋' && ['寅','申'].includes(timeZhi)) list.push('急腳關');
-        if (season === '冬' && ['卯','酉'].includes(timeZhi)) list.push('急腳關');
-
-        // 13. 將軍箭
-        if (season === '春' && ['酉','戌','辰'].includes(timeZhi)) list.push('將軍箭');
-        if (season === '夏' && ['未','卯','子'].includes(timeZhi)) list.push('將軍箭');
-        if (season === '秋' && ['寅','午','丑'].includes(timeZhi)) list.push('將軍箭');
-        if (season === '冬' && ['亥','申','巳'].includes(timeZhi)) list.push('將軍箭');
-
-        // 14. 短命關
-        if (season === '春' && timeZhi === '巳') list.push('短命關');
-        if (season === '夏' && timeZhi === '酉') list.push('短命關');
-        if (season === '秋' && timeZhi === '辰') list.push('短命關');
-        if (season === '冬' && timeZhi === '亥') list.push('短命關');
-
-        // 15. 和尚關
-        if (season === '春' && timeZhi === '辰') list.push('和尚關');
-        if (season === '夏' && timeZhi === '戌') list.push('和尚關');
-        if (season === '秋' && timeZhi === '辰') list.push('和尚關');
-        if (season === '冬' && timeZhi === '戌') list.push('和尚關');
-
-        // 16. 鬼門關
-        if (['子','寅','辰','午','申','戌'].includes(yearZhi) && ['甲','壬','戊'].includes(dayGan) && ['寅'].includes(timeZhi)) list.push('鬼門關');
-        if (['丑','卯','巳','未','酉','亥'].includes(yearZhi) && ['庚','丙'].includes(dayGan) && ['申'].includes(timeZhi)) list.push('鬼門關');
-
-        // 17. 夜啼關
-        if (['子','午','卯','酉'].includes(yearZhi) && ['卯'].includes(timeZhi)) list.push('夜啼關');
-        if (['寅','申','巳','亥'].includes(yearZhi) && ['午'].includes(timeZhi)) list.push('夜啼關');
-        if (['辰','戌','丑','未'].includes(yearZhi) && ['丑'].includes(timeZhi)) list.push('夜啼關');
-
-        // 18. 水火關
         if (season === '春' && ['未','戌'].includes(timeZhi)) list.push('水火關');
         if (season === '夏' && ['丑','辰'].includes(timeZhi)) list.push('水火關');
         if (season === '秋' && ['酉'].includes(timeZhi)) list.push('水火關');
         if (season === '冬' && ['丑'].includes(timeZhi)) list.push('水火關');
 
-        // 19. 下情關
-        if (season === '春' && ['寅','卯','辰'].includes(timeZhi)) list.push('下情關');
-        if (season === '夏' && ['巳','午','未'].includes(timeZhi)) list.push('下情關');
-        if (season === '秋' && ['申','酉','戌'].includes(timeZhi)) list.push('下情關');
-        if (season === '冬' && ['亥','子','丑'].includes(timeZhi)) list.push('下情關');
+        if (['寅','申','巳','亥'].includes(monthZhi) && ['辰','戌','丑','未'].includes(timeZhi)) list.push('百日關');
+        if (['子','午','卯','酉'].includes(monthZhi) && ['寅','申','巳','亥'].includes(timeZhi)) list.push('百日關');
+        if (['辰','戌','丑','未'].includes(monthZhi) && ['子','午','卯','酉'].includes(timeZhi)) list.push('百日關');
 
-        // 20. 五鬼關
-        if (['子','寅','辰','午','申','戌'].includes(yearZhi) && ['甲','壬','戊'].includes(dayGan) && ['寅'].includes(timeZhi)) list.push('五鬼關');
-        if (['丑','卯','巳','未','酉','亥'].includes(yearZhi) && ['庚','丙'].includes(dayGan) && ['申'].includes(timeZhi)) list.push('五鬼關');
+        if (season === '春' && ['酉','戌','辰'].includes(timeZhi)) list.push('將軍箭');
+        if (season === '夏' && ['未','卯','子'].includes(timeZhi)) list.push('將軍箭');
+        if (season === '秋' && ['寅','午','丑'].includes(timeZhi)) list.push('將軍箭');
+        if (season === '冬' && ['亥','申','巳'].includes(timeZhi)) list.push('將軍箭');
 
-        // 21. 雞飛關
-        if (['子','寅','辰','午','申','戌'].includes(yearZhi) && ['卯'].includes(timeZhi)) list.push('雞飛關');
-        if (['丑','卯','巳','未','酉','亥'].includes(yearZhi) && ['酉'].includes(timeZhi)) list.push('雞飛關');
+        if (yearNaYin.includes('金') && timeZhi === '戌') list.push('鐵蛇關');
+        if (yearNaYin.includes('木') && timeZhi === '辰') list.push('鐵蛇關');
+        if (yearNaYin.includes('水') && timeZhi === '寅') list.push('鐵蛇關');
+        if (yearNaYin.includes('火') && timeZhi === '未') list.push('鐵蛇關');
+        if (yearNaYin.includes('土') && timeZhi === '卯') list.push('鐵蛇關');
 
-        // 22. 取命關
         if (['甲','乙','丙','丁'].includes(yearGan) && ['申','子','辰'].includes(timeZhi)) list.push('取命關');
         if (['戊','己','庚','辛'].includes(yearGan) && ['亥','卯','未'].includes(timeZhi)) list.push('取命關');
         if (['壬','癸'].includes(yearGan) && ['寅','午','戌'].includes(timeZhi)) list.push('取命關');
 
-        // 23. 千日關
-        if (['午','寅','戌'].includes(yearZhi) && ['巳'].includes(timeZhi)) list.push('千日關');
-        if (['子','辰','申'].includes(yearZhi) && ['亥'].includes(timeZhi)) list.push('千日關');
-        if (['卯','未','亥'].includes(yearZhi) && ['寅'].includes(timeZhi)) list.push('千日關');
-        if (['酉','丑','巳'].includes(yearZhi) && ['申'].includes(timeZhi)) list.push('千日關');
+        if (season === '春' && timeZhi === '巳') list.push('短命關');
+        if (season === '夏' && timeZhi === '酉') list.push('短命關');
+        if (season === '秋' && timeZhi === '辰') list.push('短命關');
+        if (season === '冬' && timeZhi === '亥') list.push('短命關');
 
-        // 過濾重複的關煞
-        list = [...new Set(list)];
-        
+        if (season === '春' && timeZhi === '辰') list.push('和尚關');
+        if (season === '夏' && timeZhi === '戌') list.push('和尚關');
+        if (season === '秋' && timeZhi === '辰') list.push('和尚關');
+        if (season === '冬' && timeZhi === '戌') list.push('和尚關');
+
+        if (season === '春' && ['巳','亥'].includes(timeZhi)) list.push('落井關');
+        if (season === '夏' && ['辰','戌'].includes(timeZhi)) list.push('落井關');
+        if (season === '秋' && ['卯','酉'].includes(timeZhi)) list.push('落井關');
+        if (season === '冬' && ['寅','申'].includes(timeZhi)) list.push('落井關');
+
         return list.length > 0 ? list.join('、') : '無';
     }
 
@@ -479,27 +420,25 @@
         const inputVal = document.getElementById('targetRocYear').value;
         let rocYear = parseInt(inputVal, 10);
         
-        // 【強力防呆】如果使用者正在清除欄位或輸入非數字，預設為 115，避免產生 NaN 崩潰
         if (isNaN(rocYear)) {
-            rocYear = 115;
+            rocYear = 115; // 絕對防呆
         }
         
         const gregYear = rocYear + 1911;
 
-        // 【終極解法】拔除對套件 getYearNineStar 的依賴，改用100%精準數學公式推算流年紫白
+        // 計算流年紫白 (防護升級)
         let remainder = gregYear % 9;
         if (remainder === 0) remainder = 9;
         let yCenter = 11 - remainder;
         if (yCenter > 9) yCenter -= 9;
         if (yCenter <= 0) yCenter += 9;
 
-        // 流月起星依然依賴年支
         const targetSolar = Solar.fromYmd(gregYear, 6, 1);
         const targetZhi = targetSolar.getLunar().getYearZhi();
 
-        let mStartCenter = 8; // 子午卯酉年正月起8
-        if (["寅", "申", "巳", "亥"].includes(targetZhi)) mStartCenter = 2; // 寅申巳亥年正月起2
-        else if (["辰", "戌", "丑", "未"].includes(targetZhi)) mStartCenter = 5; // 辰戌丑未年正月起5
+        let mStartCenter = 8; 
+        if (["寅", "申", "巳", "亥"].includes(targetZhi)) mStartCenter = 2; 
+        else if (["辰", "戌", "丑", "未"].includes(targetZhi)) mStartCenter = 5; 
 
         const pGua = globalPillars.map(p => zhiPalace[p.zhi]);
         const pYun = globalPillars.map(p => getXk(p.gan+p.zhi).y);
@@ -518,7 +457,6 @@
         for (let i = 0; i < 12; i++) {
             let mLabel = (i+1) + "月";
             xkHtml += `<tr><td>${mLabel}</td><td>${curM[0]}</td><td>${curM[1]}</td><td>${curM[2]}</td><td>${curM[3]}</td></tr>`;
-            // 流月逐月逆推 (-1)
             curM = curM.map(val => mod9(val - 1));
         }
         document.getElementById('xuankongTable').innerHTML = xkHtml;
@@ -575,6 +513,7 @@
             globalPillars.forEach(p => baziHtml += `<th>${p.shishen}</th>`);
             baziHtml += `</tr><tr>`;
             globalPillars.forEach(p => {
+                // 這裡會呼叫全新修改的全自動運算引擎
                 const xk = getXk(p.gan + p.zhi);
                 baziHtml += `<td><span class="ganzhi-text">${p.gan}</span><span class="num-sub">${xk.g}</span><br><span class="ganzhi-text">${p.zhi}</span><span class="num-sub">${xk.z}</span></td>`;
             });
@@ -603,7 +542,6 @@
             baziHtml += `</tr>`;
             document.getElementById('baziTable').innerHTML = baziHtml;
 
-            // 大運排盤
             let d1 = "<tr>", d2 = "<tr>", d3 = "<tr>", d4 = "<tr>";
             for(let i = 8; i >= 1; i--) {
                 if(daYunArr[i]) {
@@ -618,10 +556,8 @@
             }
             document.getElementById('dayunTable').innerHTML = d1+"</tr>"+d2+"</tr>"+d3+"</tr>"+d4+"</tr>";
 
-            // 渲染玄空飛星數字盤
             updateXuanKongTable();
 
-            // 特星年日支直立卡片清單渲染
             const branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
             const matrix = [
                 ["未", "午", "卯", "未", "巳", "亥", "巳", "戌", "寅", "戌", "子", "子"],
