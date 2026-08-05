@@ -1,1 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>玄空飛星全動態平面圖標示工具</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .controls {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 900px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #fdfdfd;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+        }
+        canvas {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 100%;
+            cursor: crosshair;
+        }
+        label {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+        }
+        select, input[type="file"], input[type="range"] {
+            padding: 5px;
+            font-size: 14px;
+        }
+        .highlight {
+            color: #D32F2F;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
 
+    <div class="controls">
+        <div class="control-group">
+            <label>1. 上傳平面圖</label>
+            <input type="file" id="imageUpload" accept="image/*">
+            <label style="color: #666; font-size: 12px; margin-top: 5px;">* 點擊圖面可自訂「中心點」</label>
+        </div>
+        
+        <div class="control-group">
+            <label>2. 設定三元九運與坐向</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <select id="periodSelect">
+                    <option value="1">一運</option>
+                    <option value="2">二運</option>
+                    <option value="3">三運</option>
+                    <option value="4">四運</option>
+                    <option value="5">五運</option>
+                    <option value="6">六運</option>
+                    <option value="7">七運</option>
+                    <option value="8">八運</option>
+                    <option value="9" selected>九運</option>
+                </select>
+                <select id="mountainSelect"></select>
+                <span id="facingText" class="highlight">向首：自動計算</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>3. 旋轉方位 (對齊坐向): <span id="angleValue">0</span>°</label>
+            <input type="range" id="rotationSlider" min="0" max="360" value="0" style="width: 200px;">
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const imageUpload = document.getElementById('imageUpload');
+        const rotationSlider = document.getElementById('rotationSlider');
+        const angleValue = document.getElementById('angleValue');
+        const periodSelect = document.getElementById('periodSelect');
+        const mountainSelect = document.getElementById('mountainSelect');
+        const facingText = document.getElementById('facingText');
+
+        let img = new Image();
+        let imageLoaded = false;
+        let centerX = 0;
+        let centerY = 0;
+        let activeChart = {}; // 儲存當前計算好的飛星盤
+
+        // --- 核心演算法：24山與天地人元龍 ---
+        // type: 0=地元龍, 1=天元龍, 2=人元龍
+        // sector: 九宮卦位數字
+        const mountains24 = [
+            { name: "壬", sector: 1, type: 0 }, { name: "子", sector: 1, type: 1 }, { name: "癸", sector: 1, type: 2 }, // 北
+            { name: "丑", sector: 8, type: 0 }, { name: "艮", sector: 8, type: 1 }, { name: "寅", sector: 8, type: 2 }, // 東北
+            { name: "甲", sector: 3, type: 0 }, { name: "卯", sector: 3, type: 1 }, { name: "乙", sector: 3, type: 2 }, // 東
+            { name: "辰", sector: 4, type: 0 }, { name: "巽", sector: 4, type: 1 }, { name: "巳", sector: 4, type: 2 }, // 東南
+            { name: "丙", sector: 9, type: 0 }, { name: "午", sector: 9, type: 1 }, { name: "丁", sector: 9, type: 2 }, // 南
+            { name: "未", sector: 2, type: 0 }, { name: "坤", sector: 2, type: 1 }, { name: "申", sector: 2, type: 2 }, // 西南
+            { name: "庚", sector: 7, type: 0 }, { name: "酉", sector: 7, type: 1 }, { name: "辛", sector: 7, type: 2 }, // 西
+            { name: "戌", sector: 6, type: 0 }, { name: "乾", sector: 6, type: 1 }, { name: "亥", sector: 6, type: 2 }  // 西北
+        ];
+
+        // 飛星陰陽順逆對應表 (true=順飛, false=逆飛) -> [地元, 天元, 人元]
+        const starYinYang = {
+            1: [true, false, false],
+            2: [false, true, true],
+            3: [true, false, false],
+            4: [false, true, true],
+            6: [false, true, true],
+            7: [true, false, false],
+            8: [false, true, true],
+            9: [true, false, false]
+        };
+
+        // 洛書軌跡 (中, 西北, 西, 東北, 南, 北, 西南, 東, 東南) 對應的宮位數字
+        const pathToSector = [5, 6, 7, 8, 9, 1, 2, 3, 4];
+
+        // 卦位顯示資訊
+        const sectorDisplay = {
+            3: { name: "震 (東)", color: "#2E8B57" },
+            4: { name: "巽 (東南)", color: "#2E8B57" },
+            9: { name: "離 (南)", color: "#B22222" },
+            2: { name: "坤 (西南)", color: "#B8860B" },
+            7: { name: "兌 (西)", color: "#DAA520" },
+            6: { name: "乾 (西北)", color: "#DAA520" },
+            1: { name: "坎 (北)", color: "#4682B4" },
+            8: { name: "艮 (東北)", color: "#B8860B" }
+        };
+
+        // 畫布繪製順序 (從正東開始順時針)
+        const drawOrder = [3, 4, 9, 2, 7, 6, 1, 8];
+
+        // 初始化下拉選單
+        function initSelects() {
+            mountains24.forEach((m, index) => {
+                let option = document.createElement('option');
+                option.value = index;
+                option.text = m.name + "山";
+                mountainSelect.appendChild(option);
+            });
+            // 預設選中「未山」(第15個索引)
+            mountainSelect.value = 15;
+            updateChart();
+        }
+
+        // 飛星步法函數
+        function fly(star, forward) {
+            let res = {};
+            for (let i = 0; i < 9; i++) {
+                let val = forward ? ((star + i - 1) % 9 + 9) % 9 + 1 : ((star - i - 1) % 9 + 9) % 9 + 1;
+                res[pathToSector[i]] = val;
+            }
+            return res;
+        }
+
+        // 計算完整飛星盤
+        function calculateFlyingStars() {
+            let period = parseInt(periodSelect.value);
+            let mIdx = parseInt(mountainSelect.value);
+            let fIdx = (mIdx + 12) % 24; // 向首與坐山相對180度
+            
+            let mtn = mountains24[mIdx];
+            let fac = mountains24[fIdx];
+            facingText.textContent = `向首：${fac.name}向`;
+
+            // 1. 排運盤 (底星)
+            let baseStars = fly(period, true);
+            let mBase = baseStars[mtn.sector];
+            let fBase = baseStars[fac.sector];
+
+            // 2. 判斷順逆 (若遇5入中，則借用原宮位陰陽)
+            let mForward = (mBase === 5) ? starYinYang[mtn.sector][mtn.type] : starYinYang[mBase][mtn.type];
+            let fForward = (fBase === 5) ? starYinYang[fac.sector][fac.type] : starYinYang[fBase][fac.type];
+
+            // 3. 飛山向星
+            let mStars = fly(mBase, mForward);
+            let fStars = fly(fBase, fForward);
+
+            activeChart = { base: baseStars, mount: mStars, face: fStars, mtnSector: mtn.sector, facSector: fac.sector };
+            if (imageLoaded) draw();
+        }
+
+        function updateChart() {
+            calculateFlyingStars();
+        }
+
+        // 監聽器綁定
+        periodSelect.addEventListener('change', updateChart);
+        mountainSelect.addEventListener('change', updateChart);
+
+        imageUpload.addEventListener('change', function(e) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                img.onload = function() {
+                    const maxWidth = 800;
+                    const scale = img.width > maxWidth ? maxWidth / img.width : 1;
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    centerX = canvas.width / 2;
+                    centerY = canvas.height / 2;
+                    imageLoaded = true;
+                    draw();
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        });
+
+        rotationSlider.addEventListener('input', function() {
+            angleValue.textContent = this.value;
+            if (imageLoaded) draw();
+        });
+
+        canvas.addEventListener('mousedown', function(e) {
+            if (!imageLoaded) return;
+            const rect = canvas.getBoundingClientRect();
+            centerX = e.clientX - rect.left;
+            centerY = e.clientY - rect.top;
+            draw();
+        });
+
+        // 繪圖核心
+        function draw() {
+            if (!imageLoaded) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            const radius = Math.min(canvas.width, canvas.height) * 0.45;
+            const rotationAngle = (rotationSlider.value * Math.PI) / 180;
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(rotationAngle);
+
+            const anglePerSector = (Math.PI * 2) / 8;
+            
+            for (let i = 0; i < 8; i++) {
+                let sectorNum = drawOrder[i];
+                const startAngle = i * anglePerSector - (anglePerSector / 2);
+                const endAngle = startAngle + anglePerSector;
+                const midAngle = startAngle + (anglePerSector / 2);
+
+                // 畫扇形
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.strokeStyle = "rgba(255, 0, 0, 0.4)";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+                ctx.fill();
+
+                // 準備文字座標
+                const textRadius = radius * 0.75;
+                const textX = Math.cos(midAngle) * textRadius;
+                const textY = Math.sin(midAngle) * textRadius;
+
+                ctx.save();
+                ctx.translate(textX, textY);
+                ctx.rotate(-rotationAngle); // 抵銷外層旋轉，讓文字永遠正向
+
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                // 1. 寫入方位名稱 (含坐向標示)
+                ctx.font = "bold 15px Microsoft JhengHei";
+                ctx.fillStyle = sectorDisplay[sectorNum].color;
+                
+                let displayName = sectorDisplay[sectorNum].name;
+                if (sectorNum === activeChart.mtnSector) displayName += " (坐)";
+                if (sectorNum === activeChart.facSector) displayName += " (向)";
+                ctx.fillText(displayName, 0, -20);
+
+                // 2. 寫入 山星 - 向星
+                ctx.font = "bold 24px Arial";
+                ctx.fillStyle = "#D32F2F";
+                let mStar = activeChart.mount[sectorNum];
+                let fStar = activeChart.face[sectorNum];
+                ctx.fillText(`${mStar} - ${fStar}`, 0, 5);
+
+                // 3. 寫入 底星 (運星)
+                ctx.font = "normal 14px Arial";
+                ctx.fillStyle = "#666";
+                let bStar = activeChart.base[sectorNum];
+                ctx.fillText(`[底星: ${bStar}]`, 0, 26);
+
+                ctx.restore();
+            }
+
+            // 立極點
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // 啟動初始化
+        initSelects();
+    </script>
+</body>
+</html>
