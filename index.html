@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中國明易研習中心 - 手機直立精排系統</title>
+    <title>中國明易研習中心 - 手機與電腦A4切換版</title>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
     <style>
         body {
@@ -12,17 +12,17 @@
             margin: 0;
             padding: 6px;
             color: #1a1a1a;
+            transition: background-color 0.3s;
         }
         .paper {
             background-color: #fbf5e6;
-            width: 100%;
-            max-width: 600px;
             margin: 0 auto;
             padding: 10px;
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             border: 2px solid #3d2b1f;
             border-radius: 6px;
+            position: relative;
         }
         h1 {
             text-align: center;
@@ -86,6 +86,7 @@
             border-radius: 4px;
             margin-bottom: 8px;
             padding: 8px;
+            box-sizing: border-box;
         }
         .card-title {
             font-weight: bold;
@@ -97,6 +98,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        /* 並列卡片容器 */
+        .card-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         /* 表格共用 */
@@ -163,9 +171,182 @@
         }
 
         .footer { font-size: 15px; font-weight: bold; margin-top: 10px; color: #3d2b1f; }
+
+        /* ====== 切換按鈕樣式 ====== */
+        #modeToggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #b71c1c;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 9999;
+            font-weight: bold;
+            font-size: 14px;
+            border: 2px solid #fff;
+            transition: all 0.3s ease;
+        }
+        #modeToggle:hover {
+            background-color: #800000;
+        }
+
+        /* ====== 模式一：手機版樣式 ====== */
+        body.mobile-mode {
+            padding: 6px;
+        }
+        body.mobile-mode .paper {
+            width: 100%;
+            max-width: 600px;
+            display: block;
+        }
+
+        /* ====== 模式二：電腦版 A4 預覽樣式 ====== */
+        body.desktop-mode {
+            background-color: #555;
+            padding: 20px;
+        }
+        body.desktop-mode .paper {
+            width: 210mm;
+            min-height: 297mm;
+            max-width: none;
+            display: flex;
+            flex-direction: column;
+            padding: 10mm 12mm;
+            margin: 0 auto;
+        }
+        body.desktop-mode .card-row {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+        }
+        body.desktop-mode .card-row .card {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        body.desktop-mode .footer {
+            margin-top: auto;        
+            min-height: 52mm;        
+            border-top: 1px dashed #3d2b1f;
+            padding-top: 10px;
+        }
+        body.desktop-mode .input-panel {
+            flex-shrink: 0;
+        }
+
+        /* =======================================================
+           ====== 列印樣式：大運與玄空流月並列，底色強制透明 ====== 
+           ======================================================= */
+        @media print {
+            #modeToggle, .input-panel { display: none !important; }
+            
+            /* 強制移除所有元素的底色，只保留字與框線 */
+            * {
+                background: transparent !important;
+                background-color: transparent !important;
+                box-shadow: none !important;
+            }
+
+            @page { 
+                size: A4 portrait; 
+                margin: 0 !important; 
+            }
+            
+            body { 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+                overflow: hidden !important; 
+            }
+            
+            .paper {
+                width: 210mm !important;
+                height: 297mm !important; 
+                max-width: none !important; 
+                border: none !important; 
+                display: flex !important; 
+                flex-direction: column !important; 
+                padding: 8mm 10mm !important; 
+                margin: 0 !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important; 
+            }
+
+            /* 表頭 */
+            h1 { font-size: 16pt !important; margin: 0 0 2px 0 !important; }
+            .sub-header { font-size: 9pt !important; margin-bottom: 4px !important; padding-bottom: 2px !important; }
+            
+            /* 卡片外距與內距 */
+            .card { 
+                padding: 4px 6px !important; 
+                margin-bottom: 4px !important; 
+                border: 1px solid #333 !important; 
+                border-radius: 0 !important; 
+            }
+            .card-title { 
+                font-size: 10pt !important; 
+                margin-bottom: 3px !important; 
+                padding-bottom: 1px !important; 
+            }
+
+            /* 中段並列佈局 (大運 + 玄空) */
+            .card-row {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 6px !important;
+                margin-bottom: 4px !important;
+            }
+            .card-row .card {
+                flex: 1 !important;
+                margin-bottom: 0 !important;
+            }
+            
+            /* 表格微縮 */
+            table { font-size: 8.5pt !important; }
+            th, td { padding: 1.5px 1px !important; border: 1px solid #444 !important; }
+            
+            .bazi-table th { font-size: 9.5pt !important; padding: 2px 0 !important; }
+            .ganzhi-text { font-size: 13pt !important; line-height: 1 !important; }
+            .num-sub { font-size: 7pt !important; }
+            .hidegan-col { font-size: 7.5pt !important; line-height: 1.1 !important; }
+            .zhangsheng { font-size: 8.5pt !important; margin-top: 2px !important; padding: 1px 0 !important; border-top: 1px solid #333 !important; border-bottom: 1px solid #333 !important; }
+            .shensha-list { font-size: 7.5pt !important; margin-top: 1px !important; line-height: 1.1 !important; }
+            
+            #userInfoArea { font-size: 8pt !important; margin-top: 2px !important; padding-top: 2px !important; line-height: 1.25 !important; border-top: 1px dashed #444 !important; }
+
+            /* 十二地支神煞改為 3 欄 */
+            .shensha-vertical-list { 
+                grid-template-columns: repeat(3, 1fr) !important; 
+                gap: 2px !important; 
+            }
+            .shensha-item { 
+                padding: 2px 3px !important; 
+                border: 1px solid #999 !important; 
+                line-height: 1.1 !important;
+            }
+            .shensha-item b { font-size: 8.5pt !important; display: block; margin-bottom: 1px !important;}
+            .shensha-item span { font-size: 7pt !important; }
+
+            /* 確保批示區擁有足足 1/6 A4 高度 (約 50mm - 55mm) */
+            .footer {
+                margin-top: auto !important; 
+                height: 55mm !important; 
+                min-height: 55mm !important;
+                border-top: 1px dashed #333 !important;
+                padding-top: 6px !important;
+                font-size: 12pt !important;
+                box-sizing: border-box !important;
+            }
+        }
     </style>
 </head>
-<body>
+<body class="mobile-mode">
+
+<!-- 切換按鈕 -->
+<div id="modeToggle" onclick="toggleMode()">切換中...</div>
 
 <div class="paper">
     <div class="input-panel">
@@ -195,7 +376,7 @@
         <div><button onclick="processAll()">立即排盤</button></div>
     </div>
 
-    <h1>中國明易研習中心</h1>
+    <h1>中國明易研習中心<span style="font-size: 0.8em;">-許哲維</span></h1>
     <div class="sub-header">
         台中市東興路3段239號11樓5室 ｜ 電話：(04)23218897
     </div>
@@ -210,29 +391,32 @@
         <div style="margin-top: 6px; font-size: 12px; line-height: 1.5; border-top: 1px dashed #ccc; padding-top: 4px;" id="userInfoArea"></div>
     </div>
 
-    <!-- 大運盤 -->
-    <div class="card">
-        <div class="card-title">
-            <span>大運流年表</span>
-            <span id="startYunArea" style="font-size:11px; color:#b71c1c;"></span>
-        </div>
-        <div style="overflow-x: auto;">
-            <table class="dayun-table" id="dayunTable"></table>
-        </div>
-    </div>
-
-    <!-- 數字盤 (玄空流月飛星盤) -->
-    <div class="card">
-        <div class="card-title">
-            <span>三元玄空流月飛星盤</span>
-            <div class="year-control">
-                <button onclick="adjustYear(-1)">◀</button>
-                <span>民國 <input type="number" id="targetRocYear" value="115" style="width: 45px; text-align: center;" oninput="updateXuanKongTable()"> 年</span>
-                <button onclick="adjustYear(1)">▶</button>
+    <!-- 並列區域：大運盤 + 數字盤 -->
+    <div class="card-row">
+        <!-- 大運盤 -->
+        <div class="card">
+            <div class="card-title">
+                <span>大運流年表</span>
+                <span id="startYunArea" style="font-size:11px; color:#b71c1c;"></span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="dayun-table" id="dayunTable"></table>
             </div>
         </div>
-        <div style="overflow-x: auto;">
-            <table id="xuankongTable"></table>
+
+        <!-- 數字盤 (玄空流月飛星盤) -->
+        <div class="card">
+            <div class="card-title">
+                <span>三元玄空流月飛星盤</span>
+                <div class="year-control">
+                    <button onclick="adjustYear(-1)">◀</button>
+                    <span>民國 <input type="number" id="targetRocYear" value="115" style="width: 45px; text-align: center;" oninput="updateXuanKongTable()"> 年</span>
+                    <button onclick="adjustYear(1)">▶</button>
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="xuankongTable"></table>
+            </div>
         </div>
     </div>
 
@@ -246,6 +430,26 @@
 </div>
 
 <script>
+    function initMode() {
+        if (window.innerWidth > 768) {
+            document.body.className = 'desktop-mode';
+            document.getElementById('modeToggle').innerText = '手機版';
+        } else {
+            document.body.className = 'mobile-mode';
+            document.getElementById('modeToggle').innerText = '電腦版';
+        }
+    }
+
+    function toggleMode() {
+        if (document.body.classList.contains('desktop-mode')) {
+            document.body.className = 'mobile-mode';
+            document.getElementById('modeToggle').innerText = '電腦版';
+        } else {
+            document.body.className = 'desktop-mode';
+            document.getElementById('modeToggle').innerText = '手機版';
+        }
+    }
+
     const dictHideGan = {
         '子':['癸'], '丑':['癸','辛','己'], '寅':['戊','丙','甲'], '卯':['乙'],
         '辰':['乙','癸','戊'], '巳':['戊','庚','丙'], '午':['己','丁'], '未':['丁','乙','己'],
@@ -276,38 +480,22 @@
         return ssName[`${diff}_${diffYY}`];
     }
 
-    // ==========================================
-    // 依據使用者上傳圖表，完全精確復刻的 60 甲子大卦字典庫
-    // (雙數字如 4/3、2/1 皆依指示取右邊的 3、1)
-    // ==========================================
     const xk60Dict = {
-        // 第一欄：甲
         "甲子":{g:1, y:1}, "甲戌":{g:7, y:2}, "甲申":{g:3, y:9}, "甲午":{g:9, y:1}, "甲辰":{g:3, y:2}, "甲寅":{g:7, y:9},
-        // 第二欄：乙
         "乙丑":{g:3, y:6}, "乙亥":{g:3, y:3}, "乙酉":{g:9, y:4}, "乙未":{g:7, y:6}, "乙巳":{g:7, y:3}, "乙卯":{g:1, y:4},
-        // 第三欄：丙
         "丙寅":{g:2, y:4}, "丙子":{g:6, y:3}, "丙戌":{g:6, y:1}, "丙申":{g:8, y:4}, "丙午":{g:4, y:3}, "丙辰":{g:4, y:1},
-        // 第四欄：丁
         "丁卯":{g:6, y:9}, "丁丑":{g:4, y:7}, "丁亥":{g:8, y:8}, "丁酉":{g:4, y:9}, "丁未":{g:6, y:7}, "丁巳":{g:2, y:8},
-        // 第五欄：戊
         "戊辰":{g:9, y:6}, "戊寅":{g:8, y:6}, "戊子":{g:7, y:4}, "戊戌":{g:1, y:6}, "戊申":{g:2, y:6}, "戊午":{g:3, y:4},
-        // 第六欄：己
         "己巳":{g:8, y:2}, "己卯":{g:7, y:8}, "己丑":{g:9, y:2}, "己亥":{g:2, y:2}, "己酉":{g:3, y:8}, "己未":{g:1, y:2},
-        // 第七欄：庚
         "庚午":{g:8, y:9}, "庚辰":{g:1, y:9}, "庚寅":{g:3, y:1}, "庚子":{g:2, y:9}, "庚戌":{g:9, y:9}, "庚申":{g:7, y:1},
-        // 第八欄：辛
         "辛未":{g:9, y:3}, "辛巳":{g:3, y:7}, "辛卯":{g:2, y:3}, "辛丑":{g:1, y:3}, "辛亥":{g:7, y:7}, "辛酉":{g:8, y:3},
-        // 第九欄：壬
         "壬申":{g:1, y:7}, "壬午":{g:2, y:1}, "壬辰":{g:6, y:4}, "壬寅":{g:9, y:7}, "壬子":{g:8, y:1}, "壬戌":{g:4, y:4},
-        // 第十欄：癸
         "癸酉":{g:2, y:7}, "癸未":{g:4, y:8}, "癸巳":{g:4, y:6}, "癸卯":{g:8, y:7}, "癸丑":{g:6, y:8}, "癸亥":{g:6, y:6}
     };
 
     function getXk(gz) { 
-        // 百分之百對應上方字典庫
         return xk60Dict[gz] || {g:'?', y:'?'}; 
     }
-    // ==========================================
 
     const zhiPalace = { 子:1, 丑:8, 寅:8, 卯:3, 辰:4, 巳:4, 午:9, 未:2, 申:2, 酉:7, 戌:6, 亥:6 };
     function mod9(num) { let m = num % 9; return m <= 0 ? m + 9 : m; }
@@ -603,6 +791,7 @@
         document.getElementById('birthHour').value = now.getHours();
         document.getElementById('targetRocYear').value = now.getFullYear() - 1911;
         processAll();
+        initMode(); // 初始化裝置模式
     };
 </script>
 </body>
