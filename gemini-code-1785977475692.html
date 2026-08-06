@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>玄空飛星全動態平面圖標示工具</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .controls {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 900px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #fdfdfd;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+        }
+        canvas {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 100%;
+            cursor: crosshair;
+        }
+        label {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+        }
+        select, input[type="file"], input[type="range"], input[type="number"] {
+            padding: 5px;
+            font-size: 14px;
+        }
+        .highlight {
+            color: #D32F2F;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>1. 上傳平面圖</label>
+            <input type="file" id="imageUpload" accept="image/*">
+            <label style="color: #666; font-size: 12px; margin-top: 5px;">* 點擊圖面可自訂「中心點」</label>
+        </div>
+        
+        <div class="control-group">
+            <label>2. 設定三元九運與坐向</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <select id="periodSelect">
+                    <option value="1">一運</option>
+                    <option value="2">二運</option>
+                    <option value="3">三運</option>
+                    <option value="4">四運</option>
+                    <option value="5">五運</option>
+                    <option value="6">六運</option>
+                    <option value="7">七運</option>
+                    <option value="8">八運</option>
+                    <option value="9" selected>九運</option>
+                </select>
+                <select id="mountainSelect"></select>
+                <span id="facingText" class="highlight">向首：自動計算</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>3. 旋轉方位 (對齊坐向): <span id="angleValue">0</span>°</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <!-- 調整拉桿寬度至 360px，並加上 step="1" -->
+                <input type="range" id="rotationSlider" min="0" max="360" step="1" value="0" style="width: 360px;">
+                <!-- 新增數字微調輸入框 -->
+                <input type="number" id="rotationNumber" min="0" max="360" step="1" value="0" style="width: 70px;">
+            </div>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const imageUpload = document.getElementById('imageUpload');
+        const rotationSlider = document.getElementById('rotationSlider');
+        const rotationNumber = document.getElementById('rotationNumber');
+        const angleValue = document.getElementById('angleValue');
+        const periodSelect = document.getElementById('periodSelect');
+        const mountainSelect = document.getElementById('mountainSelect');
+        const facingText = document.getElementById('facingText');
+
+        let img = new Image();
+        let imageLoaded = false;
+        let centerX = 0;
+        let centerY = 0;
+        let activeChart = {};
+
+        const mountains24 = [
+            { name: "壬", sector: 1, type: 0 }, { name: "子", sector: 1, type: 1 }, { name: "癸", sector: 1, type: 2 },
+            { name: "丑", sector: 8, type: 0 }, { name: "艮", sector: 8, type: 1 }, { name: "寅", sector: 8, type: 2 },
+            { name: "甲", sector: 3, type: 0 }, { name: "卯", sector: 3, type: 1 }, { name: "乙", sector: 3, type: 2 },
+            { name: "辰", sector: 4, type: 0 }, { name: "巽", sector: 4, type: 1 }, { name: "巳", sector: 4, type: 2 },
+            { name: "丙", sector: 9, type: 0 }, { name: "午", sector: 9, type: 1 }, { name: "丁", sector: 9, type: 2 },
+            { name: "未", sector: 2, type: 0 }, { name: "坤", sector: 2, type: 1 }, { name: "申", sector: 2, type: 2 },
+            { name: "庚", sector: 7, type: 0 }, { name: "酉", sector: 7, type: 1 }, { name: "辛", sector: 7, type: 2 },
+            { name: "戌", sector: 6, type: 0 }, { name: "乾", sector: 6, type: 1 }, { name: "亥", sector: 6, type: 2 }
+        ];
+
+        const starYinYang = {
+            1: [true, false, false],
+            2: [false, true, true],
+            3: [true, false, false],
+            4: [false, true, true],
+            6: [false, true, true],
+            7: [true, false, false],
+            8: [false, true, true],
+            9: [true, false, false]
+        };
+
+        const pathToSector = [5, 6, 7, 8, 9, 1, 2, 3, 4];
+
+        const sectorDisplay = {
+            3: { name: "震 (東)", color: "#2E8B57" },
+            4: { name: "巽 (東南)", color: "#2E8B57" },
+            9: { name: "離 (南)", color: "#B22222" },
+            2: { name: "坤 (西南)", color: "#B8860B" },
+            7: { name: "兌 (西)", color: "#DAA520" },
+            6: { name: "乾 (西北)", color: "#DAA520" },
+            1: { name: "坎 (北)", color: "#4682B4" },
+            8: { name: "艮 (東北)", color: "#B8860B" }
+        };
+
+        const drawOrder = [3, 4, 9, 2, 7, 6, 1, 8];
+
+        function initSelects() {
+            mountains24.forEach((m, index) => {
+                let option = document.createElement('option');
+                option.value = index;
+                option.text = m.name + "山";
+                mountainSelect.appendChild(option);
+            });
+            mountainSelect.value = 15; 
+            updateChart();
+        }
+
+        function fly(star, forward) {
+            let res = {};
+            for (let i = 0; i < 9; i++) {
+                let val = forward ? ((star + i - 1) % 9 + 9) % 9 + 1 : ((star - i - 1) % 9 + 9) % 9 + 1;
+                res[pathToSector[i]] = val;
+            }
+            return res;
+        }
+
+        function calculateFlyingStars() {
+            let period = parseInt(periodSelect.value);
+            let mIdx = parseInt(mountainSelect.value);
+            let fIdx = (mIdx + 12) % 24; 
+            
+            let mtn = mountains24[mIdx];
+            let fac = mountains24[fIdx];
+            facingText.textContent = `向首：${fac.name}向`;
+
+            let baseStars = fly(period, true);
+            let mBase = baseStars[mtn.sector];
+            let fBase = baseStars[fac.sector];
+
+            let mForward = (mBase === 5) ? starYinYang[mtn.sector][mtn.type] : starYinYang[mBase][mtn.type];
+            let fForward = (fBase === 5) ? starYinYang[fac.sector][fac.type] : starYinYang[fBase][fac.type];
+
+            let mStars = fly(mBase, mForward);
+            let fStars = fly(fBase, fForward);
+
+            activeChart = { base: baseStars, mount: mStars, face: fStars, mtnSector: mtn.sector, facSector: fac.sector };
+            if (imageLoaded) draw();
+        }
+
+        function updateChart() {
+            calculateFlyingStars();
+        }
+
+        // 同步處理拉桿與數字輸入框的值
+        function syncRotation(val) {
+            let angle = parseInt(val) || 0;
+            if (angle < 0) angle = 0;
+            if (angle > 360) angle = 360;
+            
+            rotationSlider.value = angle;
+            rotationNumber.value = angle;
+            angleValue.textContent = angle;
+            
+            if (imageLoaded) draw();
+        }
+
+        periodSelect.addEventListener('change', updateChart);
+        mountainSelect.addEventListener('change', updateChart);
+
+        imageUpload.addEventListener('change', function(e) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                img.onload = function() {
+                    const maxWidth = 800;
+                    const scale = img.width > maxWidth ? maxWidth / img.width : 1;
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    centerX = canvas.width / 2;
+                    centerY = canvas.height / 2;
+                    imageLoaded = true;
+                    draw();
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        });
+
+        // 監聽拉桿
+        rotationSlider.addEventListener('input', function() {
+            syncRotation(this.value);
+        });
+
+        // 監聽數字輸入框
+        rotationNumber.addEventListener('input', function() {
+            syncRotation(this.value);
+        });
+
+        canvas.addEventListener('mousedown', function(e) {
+            if (!imageLoaded) return;
+            const rect = canvas.getBoundingClientRect();
+            centerX = e.clientX - rect.left;
+            centerY = e.clientY - rect.top;
+            draw();
+        });
+
+        function draw() {
+            if (!imageLoaded) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            const radius = Math.min(canvas.width, canvas.height) * 0.45;
+            const rotationAngle = (rotationSlider.value * Math.PI) / 180;
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(rotationAngle);
+
+            const anglePerSector = (Math.PI * 2) / 8;
+            
+            for (let i = 0; i < 8; i++) {
+                let sectorNum = drawOrder[i];
+                const startAngle = i * anglePerSector - (anglePerSector / 2);
+                const endAngle = startAngle + anglePerSector;
+                const midAngle = startAngle + (anglePerSector / 2);
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.strokeStyle = "rgba(255, 0, 0, 0.4)";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+                ctx.fill();
+
+                const textRadius = radius * 0.75;
+                const textX = Math.cos(midAngle) * textRadius;
+                const textY = Math.sin(midAngle) * textRadius;
+
+                ctx.save();
+                ctx.translate(textX, textY);
+                ctx.rotate(-rotationAngle); 
+
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                ctx.font = "bold 15px Microsoft JhengHei";
+                ctx.fillStyle = sectorDisplay[sectorNum].color;
+                
+                let displayName = sectorDisplay[sectorNum].name;
+                if (sectorNum === activeChart.mtnSector) displayName += " (坐)";
+                if (sectorNum === activeChart.facSector) displayName += " (向)";
+                ctx.fillText(displayName, 0, -20);
+
+                ctx.font = "bold 24px Arial";
+                ctx.fillStyle = "#D32F2F";
+                let mStar = activeChart.mount[sectorNum];
+                let fStar = activeChart.face[sectorNum];
+                ctx.fillText(`${mStar} - ${fStar}`, 0, 5);
+
+                ctx.font = "normal 14px Arial";
+                ctx.fillStyle = "#666";
+                let bStar = activeChart.base[sectorNum];
+                ctx.fillText(`[底星: ${bStar}]`, 0, 26);
+
+                ctx.restore();
+            }
+
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        initSelects();
+    </script>
+</body>
+</html>
