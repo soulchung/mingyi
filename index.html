@@ -237,15 +237,21 @@
         }
 
         /* =======================================================
-           ====== 列印樣式：大運與玄空流月並列，底色強制透明 ====== 
+           ====== 列印樣式：底色透明，保留框線文字，1 頁 A4 ====== 
            ======================================================= */
         @media print {
             #modeToggle, .input-panel { display: none !important; }
             
-            /* 強制移除所有元素的底色，只保留字與框線 */
-            * {
+            /* 安全設定：強制白底黑字或透明底色，保留邊框 */
+            body, .paper {
+                background: #fff !important;
+                background-color: #fff !important;
+            }
+            .card, table, th, td, .zhangsheng, .shensha-item, .input-panel {
                 background: transparent !important;
                 background-color: transparent !important;
+            }
+            * {
                 box-shadow: none !important;
             }
 
@@ -365,11 +371,18 @@
             <span><input type="number" id="birthDay" value="" style="width: 28px;" min="1" max="31"> 日</span>
             <span>
                 <select id="birthHour">
-                    <script>
-                        for(let i=0; i<24; i++) {
-                            document.write(`<option value="${i}">${i}時</option>`);
-                        }
-                    </script>
+                    <option value="0">0時</option><option value="1">1時</option>
+                    <option value="2">2時</option><option value="3">3時</option>
+                    <option value="4">4時</option><option value="5">5時</option>
+                    <option value="6">6時</option><option value="7">7時</option>
+                    <option value="8">8時</option><option value="9">9時</option>
+                    <option value="10">10時</option><option value="11">11時</option>
+                    <option value="12">12時</option><option value="13">13時</option>
+                    <option value="14">14時</option><option value="15">15時</option>
+                    <option value="16">16時</option><option value="17">17時</option>
+                    <option value="18">18時</option><option value="19">19時</option>
+                    <option value="20">20時</option><option value="21">21時</option>
+                    <option value="22">22時</option><option value="23">23時</option>
                 </select>
             </span>
         </div>
@@ -480,25 +493,8 @@
         return ssName[`${diff}_${diffYY}`];
     }
 
-    const xk60Dict = {
-        "甲子":{g:1, y:1}, "甲戌":{g:7, y:2}, "甲申":{g:3, y:9}, "甲午":{g:9, y:1}, "甲辰":{g:3, y:2}, "甲寅":{g:7, y:9},
-        "乙丑":{g:3, y:6}, "乙亥":{g:3, y:3}, "乙酉":{g:9, y:4}, "乙未":{g:7, y:6}, "乙巳":{g:7, y:3}, "乙卯":{g:1, y:4},
-        "丙寅":{g:2, y:4}, "丙子":{g:6, y:3}, "丙戌":{g:6, y:1}, "丙申":{g:8, y:4}, "丙午":{g:4, y:3}, "丙辰":{g:4, y:1},
-        "丁卯":{g:6, y:9}, "丁丑":{g:4, y:7}, "丁亥":{g:8, y:8}, "丁酉":{g:4, y:9}, "丁未":{g:6, y:7}, "丁巳":{g:2, y:8},
-        "戊辰":{g:9, y:6}, "戊寅":{g:8, y:6}, "戊子":{g:7, y:4}, "戊戌":{g:1, y:6}, "戊申":{g:2, y:6}, "戊午":{g:3, y:4},
-        "己巳":{g:8, y:2}, "己卯":{g:7, y:8}, "己丑":{g:9, y:2}, "己亥":{g:2, y:2}, "己酉":{g:3, y:8}, "己未":{g:1, y:2},
-        "庚午":{g:8, y:9}, "庚辰":{g:1, y:9}, "庚寅":{g:3, y:1}, "庚子":{g:2, y:9}, "庚戌":{g:9, y:9}, "庚申":{g:7, y:1},
-        "辛未":{g:9, y:3}, "辛巳":{g:3, y:7}, "辛卯":{g:2, y:3}, "辛丑":{g:1, y:3}, "辛亥":{g:7, y:7}, "辛酉":{g:8, y:3},
-        "壬申":{g:1, y:7}, "壬午":{g:2, y:1}, "壬辰":{g:6, y:4}, "壬寅":{g:9, y:7}, "壬子":{g:8, y:1}, "壬戌":{g:4, y:4},
-        "癸酉":{g:2, y:7}, "癸未":{g:4, y:8}, "癸巳":{g:4, y:6}, "癸卯":{g:8, y:7}, "癸丑":{g:6, y:8}, "癸亥":{g:6, y:6}
-    };
-
-    function getXk(gz) { 
-        return xk60Dict[gz] || {g:'?', y:'?'}; 
-    }
-
     const zhiPalace = { 子:1, 丑:8, 寅:8, 卯:3, 辰:4, 巳:4, 午:9, 未:2, 申:2, 酉:7, 戌:6, 亥:6 };
-    function mod9(num) { let m = num % 9; return m <= 0 ? m + 9 : m; }
+    function mod9(num) { let m = num % 9; if (m <= 0) m += 9; return m; }
     function flyStar(centerStar, branch) { return mod9(centerStar + zhiPalace[branch] - 5); }
 
     function getShenSha(gan, zhi, dayGan, dayZhi, yearZhi) {
@@ -634,7 +630,41 @@
         else if (["辰", "戌", "丑", "未"].includes(targetZhi)) mStartCenter = 5; 
 
         const pGua = globalPillars.map(p => zhiPalace[p.zhi]);
-        const pYun = globalPillars.map(p => getXk(p.gan+p.zhi).y);
+        
+        // --- 根據地支與當下元運動態計算玄空山星飛星 ---
+        let currentRocYear = parseInt(document.getElementById('targetRocYear').value, 10);
+        if (isNaN(currentRocYear)) currentRocYear = 115;
+        let gregYearForYun = currentRocYear + 1911;
+        
+        // 推算當下屬於哪一運 (例如 113年 / 2024年 進入九運)
+        let currentPeriod = Math.floor((gregYearForYun - 2004) / 20) + 8;
+        while(currentPeriod > 9) currentPeriod -= 9;
+        while(currentPeriod < 1) currentPeriod += 9;
+
+        // 玄空飛星：排山盤邏輯 (正統飛星軌跡 + 陰陽順逆)
+        function getMountainStar(period, branch) {
+            const zP = { '子':1, '丑':8, '寅':8, '卯':3, '辰':4, '巳':4, '午':9, '未':2, '申':2, '酉':7, '戌':6, '亥':6 };
+            const ylMap = { '辰':0, '戌':0, '丑':0, '未':0, '子':1, '午':1, '卯':1, '酉':1, '寅':2, '申':2, '巳':2, '亥':2 };
+            // 24山陰陽: 0(地元), 1(天元), 2(人元)
+            const yy = { 1:[1,-1,-1], 2:[-1,1,1], 3:[1,-1,-1], 4:[-1,1,1], 6:[-1,1,1], 7:[1,-1,-1], 8:[-1,1,1], 9:[1,-1,-1] };
+            
+            let p = zP[branch];
+            let base = mod9(period + p - 5);
+            let yl = ylMap[branch];
+            
+            let isY = 1;
+            if (base === 5) {
+                let tempP = period === 5 ? 2 : period; // 五黃借位
+                isY = yy[tempP][yl];
+            } else {
+                isY = yy[base][yl];
+            }
+            
+            return isY === 1 ? mod9(base + p - 5) : mod9(base - (p - 5));
+        }
+
+        const pYun = globalPillars.map(p => getMountainStar(currentPeriod, p.zhi));
+        // ----------------------------------------
         
         let yBase = globalPillars.map(p => flyStar(yCenter, p.zhi)); 
         let mBase = globalPillars.map(p => flyStar(mStartCenter, p.zhi));
@@ -706,7 +736,20 @@
             globalPillars.forEach(p => baziHtml += `<th>${p.shishen}</th>`);
             baziHtml += `</tr><tr>`;
             globalPillars.forEach(p => {
-                const xk = getXk(p.gan + p.zhi);
+                let yCenterLocal = 0; // The fixed 60-jiazi display for Bazi chart remains
+                // 這裡原本顯示的是固定查表的玄空大卦卦氣與卦運
+                const xk = {
+                    "甲子":{g:1, y:1}, "甲戌":{g:7, y:2}, "甲申":{g:3, y:9}, "甲午":{g:9, y:1}, "甲辰":{g:3, y:2}, "甲寅":{g:7, y:9},
+                    "乙丑":{g:3, y:6}, "乙亥":{g:3, y:3}, "乙酉":{g:9, y:4}, "乙未":{g:7, y:6}, "乙巳":{g:7, y:3}, "乙卯":{g:1, y:4},
+                    "丙寅":{g:2, y:4}, "丙子":{g:6, y:3}, "丙戌":{g:6, y:1}, "丙申":{g:8, y:4}, "丙午":{g:4, y:3}, "丙辰":{g:4, y:1},
+                    "丁卯":{g:6, y:9}, "丁丑":{g:4, y:7}, "丁亥":{g:8, y:8}, "丁酉":{g:4, y:9}, "丁未":{g:6, y:7}, "丁巳":{g:2, y:8},
+                    "戊辰":{g:9, y:6}, "戊寅":{g:8, y:6}, "戊子":{g:7, y:4}, "戊戌":{g:1, y:6}, "戊申":{g:2, y:6}, "戊午":{g:3, y:4},
+                    "己巳":{g:8, y:2}, "己卯":{g:7, y:8}, "己丑":{g:9, y:2}, "己亥":{g:2, y:2}, "己酉":{g:3, y:8}, "己未":{g:1, y:2},
+                    "庚午":{g:8, y:9}, "庚辰":{g:1, y:9}, "庚寅":{g:3, y:1}, "庚子":{g:2, y:9}, "庚戌":{g:9, y:9}, "庚申":{g:7, y:1},
+                    "辛未":{g:9, y:3}, "辛巳":{g:3, y:7}, "辛卯":{g:2, y:3}, "辛丑":{g:1, y:3}, "辛亥":{g:7, y:7}, "辛酉":{g:8, y:3},
+                    "壬申":{g:1, y:7}, "壬午":{g:2, y:1}, "壬辰":{g:6, y:4}, "壬寅":{g:9, y:7}, "壬子":{g:8, y:1}, "壬戌":{g:4, y:4},
+                    "癸酉":{g:2, y:7}, "癸未":{g:4, y:8}, "癸巳":{g:4, y:6}, "癸卯":{g:8, y:7}, "癸丑":{g:6, y:8}, "癸亥":{g:6, y:6}
+                }[p.gan + p.zhi] || {g:'?', y:'?'};
                 baziHtml += `<td><span class="ganzhi-text">${p.gan}</span><span class="num-sub">${xk.g}</span><br><span class="ganzhi-text">${p.zhi}</span><span class="num-sub">${xk.y}</span></td>`;
             });
             baziHtml += `</tr><tr>`;
